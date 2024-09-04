@@ -7,7 +7,7 @@
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/app/src": "${workspaceFolder}/app/src"
+                "/app": "${workspaceFolder}/app"
             }
         }
     ]
