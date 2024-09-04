@@ -17,9 +17,9 @@ spl_autoload_register(function ($className) {
     }
 });
 
-use src\Database;
+use app\src\Database;
 
-const MIGRATION_PATH = __DIR__ . '/migration.sql';
+const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 
 $pdo = Database::get()->connect();
 Database::get()->migrate($pdo, MIGRATION_PATH);
