@@ -13,7 +13,7 @@ use PDO;
 
 final class Database
 {
-    private const ENV_FILE_PATH = dirname(__DIR__) . '/.env';
+    private const ENV_FILE_PATH = __DIR__ . '/../.env';
     private static ?Database $connection = null;
 
     private function __construct() {}
@@ -52,7 +52,7 @@ final class Database
 
         if (file_exists($envFilePath)) {
             $envContent = file_get_contents($envFilePath);
-            $lines = explode("\n", $envContent);
+            $lines = explode(PHP_EOL, $envContent);
             foreach ($lines as $line) {
                 $line = trim($line);
                 if ($line === '' || strpos($line, '#') === 0) {
@@ -72,9 +72,12 @@ final class Database
     {
         try {
             $migration = file_get_contents($migrationPath);
-            $statements = explode("\r\n\r\n", $migration);
+            $statements = explode(PHP_EOL . PHP_EOL, $migration);
             foreach ($statements as $statement) {
-                $pdo->exec($statement);
+                $statement = trim($statement);
+                if (!empty($statement)) {
+                    $pdo->exec($statement);
+                }
             }
         } catch (\PDOException $e) {
             die("Database migration failed: " . $e->getMessage());
