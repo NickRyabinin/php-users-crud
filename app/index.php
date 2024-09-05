@@ -11,13 +11,13 @@
  */
 
 spl_autoload_register(function ($className) {
-    $file = __DIR__ . '/../' . str_replace('\\', '/', $className) . '.php';
+    $file = __DIR__ . '/' . str_replace('\\', '/', $className) . '.php';
     if (file_exists($file)) {
         require_once $file;
     }
 });
 
-use app\src\Database;
+use src\Database;
 
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 
