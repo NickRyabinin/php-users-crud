@@ -13,16 +13,15 @@ use PDO;
 
 final class Database
 {
-    private const ENV_FILE_PATH = __DIR__ . '/../.env';
     private static ?Database $connection = null;
 
     private function __construct() {}
 
     private function __clone() {}
 
-    public function connect(): PDO
+    public function connect(string $envFilePath): PDO
     {
-        $databaseUrl = $this->getDatabaseConfig();
+        $databaseUrl = $this->getDatabaseConfig($envFilePath);
 
         $dbType = $databaseUrl['scheme'] ?? '';
         $username = $databaseUrl['user'] ?? '';
@@ -45,10 +44,9 @@ final class Database
         return $pdo;
     }
 
-    private function getDatabaseConfig(): array
+    private function getDatabaseConfig(string $envFilePath): array
     {
         $databaseUrl = [];
-        $envFilePath = self::ENV_FILE_PATH;
 
         if (file_exists($envFilePath)) {
             $envContent = file_get_contents($envFilePath);
