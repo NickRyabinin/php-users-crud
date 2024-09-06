@@ -18,8 +18,14 @@ spl_autoload_register(function ($className) {
 });
 
 use src\Database;
+use src\Router;
 
+$router = new Router();
+
+const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 
-$pdo = Database::get()->connect();
+$pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
+
+$router->route();
