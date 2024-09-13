@@ -34,31 +34,3 @@ class Router
         echo json_encode(['message' => 'Route not found']);
     }
 }
-/*
-// Создание экземпляра роутера
-$router = new Router();
-
-// Добавление маршрутов
-$router->addRoute('GET', '/users', function() {
-    getUsers();
-});
-
-$router->addRoute('GET', '/users/{id}', function($id) {
-    getUsers($id);
-});
-
-$router->addRoute('POST', '/users', function() {
-    addUser();
-});
-
-$router->addRoute('PUT', '/users/{id}', function($id) {
-    updateUser($id);
-});
-
-$router->addRoute('DELETE', '/users/{id}', function($id) {
-    deleteUser($id);
-});
-
-// Обработка маршрутов
-$router->route();
-*/
