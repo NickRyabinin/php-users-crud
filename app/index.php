@@ -27,25 +27,22 @@ $router = new Router();
 
 const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
+const ROUTES_PATH = __DIR__ . '/src/routes.php';
 
+// Подключение к БД и миграция
 $pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
 
-// Добавление маршрутов
-$router->addRoute('GET', '/users', function() use ($userController) {
-    $userController->read();
-});
-$router->addRoute('GET', '/users/{id}', function($id) use ($userController) {
-    $userController->read($id);
-});
-$router->addRoute('POST', '/users', function() use ($userController) {
-    $userController->create();
-});
-$router->addRoute('PUT', '/users/{id}', function($id) use ($userController) {
-    $userController->update($id);
-});
-$router->addRoute('DELETE', '/users/{id}', function($id) use ($userController) {
-    $userController->delete($id);
-});
+// Загрузка маршрутов из файла конфигурации
+if (file_exists(ROUTES_PATH)) {
+    $routes = require ROUTES_PATH;
+} else {
+    http_response_code(500);
+    echo json_encode(['message' => 'Файл маршрутов не найден.']);
+    exit;
+}
 
+$router->loadRoutes($routes, $userController);
+
+// Запуск маршрутизации
 $router->route();
