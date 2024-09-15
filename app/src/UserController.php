@@ -4,12 +4,20 @@ namespace src;
 
 class UserController
 {
+    private $request;
+    private $user;
+
+    public function __construct($request, $user)
+    {
+        $this->request = $request;
+        $this->user = $user;
+    }
+
     public function create(): void
     {
-        $id = $this->helper->getId();
 
-        $inputData = $this->helper->getInputData();
-        $cleanData = array_map(fn ($param) => $this->helper->sanitize($this->helper->validate($param)), $inputData);
+        $inputData = $this->request->getInputData();
+        $cleanData = array_map(fn ($param) => $this->request->sanitize($this->request->validate($param)), $inputData);
         $login = $cleanData['login'] ?? '';
         $email = filter_var($cleanData['email'] ?? '', FILTER_VALIDATE_EMAIL);
         if (!($login && $email)) {
@@ -28,8 +36,8 @@ class UserController
 
     public function read(): void
     {
-        $page = $this->helper->getPage();
-        $id = $this->helper->getId();
+        $page = $this->request->getPage();
+        $id = $this->request->getId();
         match ($id) {
             '' => parent::handleEmptyId(page: $page),
             false => parent::handleInvalidId(),
@@ -39,9 +47,9 @@ class UserController
 
     public function update(): void
     {
-        $id = $this->helper->getId();
-        $inputData = $this->helper->getInputData();
-        $cleanData = array_map(fn ($param) => $this->helper->sanitize($this->helper->validate($param)), $inputData);
+        $id = $this->request->getId();
+        $inputData = $this->request->getInputData();
+        $cleanData = array_map(fn ($param) => $this->request->sanitize($this->request->validate($param)), $inputData);
         try {
             $this->user->update($id, $cleanData);
             parent::handleUpdatedOk();
@@ -56,7 +64,7 @@ class UserController
 
     public function delete(): void
     {
-        $id = $this->helper->getId();
+        $id = $this->request->getId();
         try {
             $this->user->destroy($id);
             parent::handleDeletedOk();

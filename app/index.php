@@ -21,9 +21,9 @@ spl_autoload_register(function ($className) {
 use src\Database;
 use src\Router;
 use src\UserController;
-
-$userController = new UserController();
-$router = new Router();
+use src\User;
+use src\View;
+use src\Request;
 
 const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
@@ -32,6 +32,13 @@ const ROUTES_PATH = __DIR__ . '/src/routes.php';
 // Подключение к БД и миграция
 $pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
+
+// Создание экземпляров сущностей
+$request = new Request();
+$router = new Router();
+$view = new View();
+$user = new User($pdo);
+$userController = new UserController($request, $user);
 
 // Загрузка маршрутов из файла конфигурации
 if (file_exists(ROUTES_PATH)) {
