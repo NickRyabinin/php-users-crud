@@ -28,6 +28,7 @@ use src\Request;
 const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 const ROUTES_PATH = __DIR__ . '/src/routes.php';
+const TEMPLATES_PATH = __DIR__ . '/templates/';
 
 // Подключение к БД и миграция
 $pdo = Database::get()->connect(ENV_FILE_PATH);
@@ -36,7 +37,7 @@ Database::get()->migrate($pdo, MIGRATION_PATH);
 // Создание экземпляров сущностей
 $request = new Request();
 $router = new Router();
-$view = new View();
+$view = new View(TEMPLATES_PATH);
 $user = new User($pdo);
 $userController = new UserController($request, $user);
 
