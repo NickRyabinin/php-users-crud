@@ -4,16 +4,26 @@ namespace src;
 
 class User
 {
-    public string $entity = 'user';
-    protected array $fillableProperties = [
-        'login', 'email', 'hashed_password',
-        'profile_picture', 'is_active'
+    private string $entity = 'user';
+    private array $fillableProperties = [
+        'login',
+        'email',
+        'hashed_password',
+        'profile_picture',
+        'is_active'
     ];
-    protected array $viewableProperties = [
-        'id', 'login', 'email', 'hashed_password', 'last_login',
-        'profile_picture', 'is_active', 'created_at', 'role'
+    private array $viewableProperties = [
+        'id',
+        'login',
+        'email',
+        'hashed_password',
+        'last_login',
+        'profile_picture',
+        'is_active',
+        'created_at',
+        'role'
     ];
-    protected \PDO $pdo;
+    private \PDO $pdo;
 
     public function __construct(\PDO $pdo)
     {
@@ -55,19 +65,28 @@ class User
 
     public function store(array $data): bool
     {
-        $this->compare($this->fillableProperties, $data);
-        $query = "INSERT INTO {$this->entity}s (title, author, published_at)
-            VALUES (:title, :author, :published_at)";
+        // Проверка на наличие обязательных полей
+        $filteredData = array_intersect_key($data, array_flip($this->fillableProperties));
+        if (count($filteredData) !== count($this->fillableProperties)) {
+            return false;
+        }
+
+        $columns = implode(', ', array_keys($filteredData));
+        $placeholders = ':' . implode(', :', array_keys($filteredData));
+
+        $query = "INSERT INTO {$this->entity}s ($columns) VALUES ($placeholders)";
+
         try {
             $stmt = $this->pdo->prepare($query);
-            foreach ($data as $key => $value) {
+            foreach ($filteredData as $key => $value) {
                 $stmt->bindValue(":{$key}", $value);
             }
-            $stmt->execute();
+            return $stmt->execute();
         } catch (\PDOException $e) {
-            throw new InvalidDataException();
+            // Логирование ошибки БД в файл
+            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            return false;
         }
-        return true;
     }
 
     public function update(string $id, array $data): bool
@@ -117,13 +136,6 @@ class User
         if (($stmt->fetch())['isExists'] === 0) {
             throw new InvalidIdException();
         }
-    }
-
-    protected function compare(array $properties, array $input): void
-    {
-        if (!(count($properties) === count($input) && array_diff($properties, array_keys($input)) === [])) {
-            throw new InvalidDataException();
-        };
     }
 
     protected function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
