@@ -116,29 +116,33 @@ class User
 
     public function destroy(string $id): bool
     {
-        $this->checkId($id);
+        if (!$this->checkId($id)) {
+            return false;
+        };
+
         $query = "DELETE FROM {$this->entity}s WHERE id= :id";
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(":id", $id);
-            $stmt->execute();
+            return $stmt->execute();
         } catch (\PDOException $e) {
-            throw new InvalidDataException();
+            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            return false;
         }
-        return true;
     }
 
-    protected function checkId(string $id): void
+    private function checkId(string $id): bool
     {
         $query = "SELECT EXISTS (SELECT id FROM {$this->entity}s WHERE id = :id) AS isExists";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([':id' => $id]);
         if (($stmt->fetch())['isExists'] === 0) {
-            throw new InvalidIdException();
+            return false;
         }
+        return true;
     }
 
-    protected function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
+    private function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
     {
         $query = "SELECT {$field} AS 'result' FROM {$model}s WHERE {$conditionKey} = :{$conditionKey}";
         try {
@@ -150,7 +154,7 @@ class User
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'];
     }
 
-    protected function getTotalRecords(): int
+    private function getTotalRecords(): int
     {
         $query = "SELECT COUNT(*) FROM {$this->entity}s";
         $stmt = $this->pdo->prepare($query);
