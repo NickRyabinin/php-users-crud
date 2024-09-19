@@ -35,7 +35,7 @@ class User
         return $this->entity;
     }
 
-    public function index(string $id, string $page): array
+    public function index(string $page): array
     {
         $offset = ((int)$page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
@@ -92,26 +92,27 @@ class User
     public function update(string $id, array $data): bool
     {
         $filteredData = array_intersect_key($data, array_flip($this->fillableProperties));
-        $this->checkId($id);
-        if (count($filteredData) === 0) {
-            throw new InvalidDataException();
+        if (count($filteredData) === 0 || !$this->checkId($id)) {
+            return false;
         }
+
         $query = "UPDATE {$this->entity}s SET";
         foreach ($filteredData as $key => $value) {
             $query = $query . " {$key} = :{$key},";
         }
         $query = rtrim($query, ',') . " WHERE id = :id";
+
         try {
             $stmt = $this->pdo->prepare($query);
             foreach ($filteredData as $key => $value) {
                 $stmt->bindValue(":{$key}", $value);
             }
             $stmt->bindValue(":id", $id);
-            $stmt->execute();
+            return $stmt->execute();
         } catch (\PDOException $e) {
-            throw new InvalidDataException();
+            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            return false;
         }
-        return true;
     }
 
     public function destroy(string $id): bool
@@ -136,10 +137,8 @@ class User
         $query = "SELECT EXISTS (SELECT id FROM {$this->entity}s WHERE id = :id) AS isExists";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([':id' => $id]);
-        if (($stmt->fetch())['isExists'] === 0) {
-            return false;
-        }
-        return true;
+
+        return ($stmt->fetch())['isExists'] === 0;
     }
 
     private function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
@@ -149,7 +148,8 @@ class User
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([":{$conditionKey}" => $conditionValue]);
         } catch (\PDOException $e) {
-            throw new InvalidDataException();
+            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            return false;
         }
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'];
     }
