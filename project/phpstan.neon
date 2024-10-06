@@ -1,0 +1,10 @@
+parameters:
+  level: 8
+  paths:
+    - app
+    - tests
+
+  excludePaths:
+    - vendor
+    - node_modules
+    - db
