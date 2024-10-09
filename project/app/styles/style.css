@@ -1,3 +1,15 @@
+:root {
+  --font-large: 20px;
+  --font-normal: 16px;
+  --font-small: 12px;
+}
+
+@font-face {
+  font-weight: 400;
+  font-family: "Open Sans";
+  src: url("./../assets/fonts/OpenSans-Regular.ttf");
+}
+
 body {
   display: flex;
   justify-content: center;
@@ -6,6 +18,26 @@ body {
   margin: 0;
   background-color: #757474;
   color: aqua;
+}
+
+nav {
+  cursor: pointer;
+}
+
+a {
+  color: lightgreen;
+  text-decoration: none;
+}
+
+.menu {
+  display: flex;
+  list-style: none;
+  font-size: var(--font-large);
+  color: lightgreen;
+}
+
+li {
+  padding: 10px;
 }
 
 .card {
