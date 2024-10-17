@@ -1,4 +1,5 @@
 <?php
+
 namespace src;
 
 class Router
@@ -16,7 +17,7 @@ class Router
     {
         foreach ($routes as $method => $routeArray) {
             foreach ($routeArray as $route => $action) {
-                $this->addRoute($method, $route, function() use ($action, $userController) {
+                $this->addRoute($method, $route, function () use ($action, $userController) {
                     return $action($userController, ...func_get_args());
                 });
             }
@@ -27,6 +28,12 @@ class Router
     public function route()
     {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+        // Проверяем наличие скрытого поля для метода (для правильной обработки PUT и DELETE)
+        if ($requestMethod === 'POST' && isset($_POST['http_method'])) {
+            $requestMethod = strtoupper($_POST['http_method']);
+        }
+
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         if (isset($this->routes[$requestMethod])) {
             foreach ($this->routes[$requestMethod] as $route => $action) {
