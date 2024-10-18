@@ -1,18 +1,21 @@
 <div class="container">
   <h2>Изменение пользователя</h2>
   <form method="post" action="./../index.php" enctype="multipart/form-data">
-  <input type="hidden" name="http_method" value="PUT">
+    <input type="hidden" name="http_method" value="PUT">
     <div class="form-group">
       <label for="username">Логин</label>
-      <input type="text" id="username" name="username" required>
+      <input type="text" id="username" name="username" value="<?= htmlspecialchars($user['login']) ?>" required>
     </div>
     <div class="form-group">
       <label for="profile_picture">Аватар</label>
       <input type="file" id="profile_picture" name="profile_picture" accept="image/png, image/jpeg" />
+      <?php if (!empty($user['profile_picture'])): ?>
+        <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар" style="max-width: 90px; max-height: 120px;">
+      <?php endif; ?>
     </div>
     <div class="form-group">
       <label for="email">Емайл</label>
-      <input type="email" id="email" name="email" required>
+      <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
     </div>
     <div class="form-group">
       <label for="password">Пароль</label>
@@ -25,13 +28,13 @@
     <div class="form-group">
       <label for="role">Admin или user</label>
       <select id="role" name="role">
-        <option value="user" selected>user</option>
-        <option value="admin">admin</option>
+        <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>user</option>
+        <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>admin</option>
       </select>
     </div>
     <div class="form-group">
       <label for="is_active">Разрешена активность?</label>
-      <input type="checkbox" id="is_active" name="is_active" value="true" checked>
+      <input type="checkbox" id="is_active" name="is_active" value="true" <?= $user['is_active'] ? 'checked' : '' ?>>
     </div>
     <button type="submit">Изменить</button>
   </form>
