@@ -1,0 +1,10 @@
+<div class="container">
+  <h2>Профиль пользователя</h2>
+  <h3><?= htmlspecialchars($user['login']) ?></h3>
+  <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар пользователя">
+  <p>Email: <?= htmlspecialchars($user['email']) ?></p>
+  <p>Роль: <?= $user['role'] ?></p>
+  <p>Зарегистрирован: <?= $user['created_at'] ?></p>
+  <p>Последнее посещение: <?= $user['last_login'] ?></p>
+  <p>Статус: <?= $user['is_active'] ? 'Активен' : 'Неактивен' ?></p>
+</div>
