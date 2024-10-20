@@ -5,17 +5,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <title>
-    {{ $title }}
+    <?= htmlspecialchars($title) ?>
   </title>
   <link rel="stylesheet" href="./styles/style.css">
 </head>
 
 <body>
   <nav>
-    {{ $menu }}
+    <?= $menu ?>
   </nav>
   <main>
-    {{ $content }}
+    <?= $content ?>
   </main>
 </body>
 
