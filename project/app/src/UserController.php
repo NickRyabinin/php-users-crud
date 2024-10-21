@@ -15,7 +15,8 @@ class UserController
 
     public function create(): void
     {
-
+        echo "UserController->create() invoked";
+        /*
         $inputData = $this->request->getInputData();
         $cleanData = array_map(fn ($param) => $this->request->sanitize($this->request->validate($param)), $inputData);
         $login = $cleanData['login'] ?? '';
@@ -32,10 +33,13 @@ class UserController
         } catch (InvalidDataException $e) {
             parent::handleInvalidData();
         }
+        */
     }
 
     public function read(): void
     {
+        echo "UserController->read() invoked";
+        /*
         $page = $this->request->getPage();
         $id = $this->request->getId();
         match ($id) {
@@ -43,10 +47,13 @@ class UserController
             false => parent::handleInvalidId(),
             default => parent::handleValidId($id)
         };
+        */
     }
 
     public function update(): void
     {
+        echo "UserController->update() invoked";
+        /*
         $id = $this->request->getId();
         $inputData = $this->request->getInputData();
         $cleanData = array_map(fn ($param) => $this->request->sanitize($this->request->validate($param)), $inputData);
@@ -60,11 +67,13 @@ class UserController
         } catch (InvalidDataException $e) {
             parent::handleInvalidData();
         }
+        */
     }
 
     public function delete(): void
     {
-        $id = $this->request->getId();
+        echo "UserController->delete() invoked";
+        /*$id = $this->request->getId();
         try {
             $this->user->destroy($id);
             parent::handleDeletedOk();
@@ -73,5 +82,6 @@ class UserController
         } catch (InvalidDataException $e) {
             parent::handleInvalidData();
         }
+        */
     }
 }
