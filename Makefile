@@ -6,6 +6,7 @@ build-dev:
 	touch ./project/app/logs/error.log
 	cp ./configs/* ./project/
 	cp ./configs/.htmlhintrc ./configs/.stylelintrc ./project/
+	cp -n ./configs/.env.example ./project/app/.env || true
 	docker-compose up --build
 run:
 	docker-compose up -d
