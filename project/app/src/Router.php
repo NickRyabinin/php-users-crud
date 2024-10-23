@@ -7,19 +7,19 @@ class Router
     private $routes = [];
 
     // Метод для добавления маршрутов
-    public function addRoute($method, $route, $action)
+    public function addRoute($method, $route, $controller, $action)
     {
-        $this->routes[strtoupper($method)][$route] = $action;
+        $this->routes[strtoupper($method)][$route] = [$controller, $action];
     }
 
     // Метод для загрузки маршрутов из массива
-    public function loadRoutes($routes, $userController)
+    public function loadRoutes($routes, $controllers)
     {
         foreach ($routes as $method => $routeArray) {
-            foreach ($routeArray as $route => $action) {
-                $this->addRoute($method, $route, function () use ($action, $userController) {
-                    return $action($userController, ...func_get_args());
-                });
+            foreach ($routeArray as $route => $controllerAction) {
+                [$controllerName, $action] = $controllerAction;
+                $controller = $controllers[$controllerName];
+                $this->addRoute($method, $route, $controller, $action);
             }
         }
     }
@@ -36,11 +36,12 @@ class Router
 
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         if (isset($this->routes[$requestMethod])) {
-            foreach ($this->routes[$requestMethod] as $route => $action) {
+            foreach ($this->routes[$requestMethod] as $route => $controllerAction) {
                 // Проверка маршрута с параметрами
                 if (preg_match('#^' . str_replace(['{id}'], ['(\d+)'], $route) . '$#', $requestUri, $matches)) {
                     array_shift($matches); // Удаляем первый элемент (полное совпадение)
-                    call_user_func_array($action, $matches);
+                    [$controller, $action] = $controllerAction;
+                    call_user_func_array([$controller, $action], $matches);
                     return;
                 }
             }
