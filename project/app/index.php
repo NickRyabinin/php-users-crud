@@ -19,6 +19,7 @@ spl_autoload_register(function ($className) {
 });
 
 use src\Database;
+use src\PageController;
 use src\Router;
 use src\UserController;
 use src\User;
@@ -40,6 +41,12 @@ $router = new Router();
 $view = new View(TEMPLATES_PATH);
 $user = new User($pdo);
 $userController = new UserController($request, $user);
+$pageController = new PageController($view);
+
+$controllers = [
+    UserController::class => $userController,
+    PageController::class => $pageController,
+];
 
 // Загрузка маршрутов из файла конфигурации
 if (file_exists(ROUTES_PATH)) {
@@ -50,7 +57,7 @@ if (file_exists(ROUTES_PATH)) {
     exit;
 }
 
-$router->loadRoutes($routes, $userController);
+$router->loadRoutes($routes, $controllers);
 
 // Запуск маршрутизации
 $router->route();
