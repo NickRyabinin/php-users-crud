@@ -1,27 +1,21 @@
 <?php
 
+use src\UserController;
+use src\PageController;
+
 return [
     'GET' => [
-        '/users' => function($userController) {
-            $userController->read();
-        },
-        '/users/{id}' => function($userController, $id) {
-            $userController->read($id);
-        },
+        '/users/{id}' => [UserController::class, 'read'],
+        '/users' => [UserController::class, 'read'],
+        '/' => [PageController::class, 'read']
     ],
     'POST' => [
-        '/users' => function($userController) {
-            $userController->create();
-        },
+        '/users' => [UserController::class, 'create']
     ],
     'PUT' => [
-        '/users/{id}' => function($userController, $id) {
-            $userController->update($id);
-        },
+        '/users/{id}' => [UserController::class, 'update']
     ],
     'DELETE' => [
-        '/users/{id}' => function($userController, $id) {
-            $userController->delete($id);
-        },
+        '/users/{id}' => [UserController::class, 'delete']
     ],
 ];
