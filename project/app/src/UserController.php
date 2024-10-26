@@ -6,11 +6,13 @@ class UserController
 {
     private $request;
     private $user;
+    private $view;
 
-    public function __construct($request, $user)
+    public function __construct($request, $user, $view)
     {
         $this->request = $request;
         $this->user = $user;
+        $this->view = $view;
     }
 
     public function create(): void
@@ -38,7 +40,7 @@ class UserController
 
     public function read(): void
     {
-        echo "UserController->read() invoked";
+        // echo "UserController->read() invoked";
         /*
         $page = $this->request->getPage();
         $id = $this->request->getId();
@@ -48,6 +50,11 @@ class UserController
             default => parent::handleValidId($id)
         };
         */
+        $users = [];
+        $data = [
+            'users' => $users
+        ];
+        $this->view->render('users/index', $data, 'Список пользователей');
     }
 
     public function update(): void
