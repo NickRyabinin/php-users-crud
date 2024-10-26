@@ -12,6 +12,7 @@
 
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -21,7 +22,13 @@ body {
 }
 
 nav {
-  cursor: pointer;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #111111;
+  padding: 10px;
+  z-index: 1000;
 }
 
 a {
@@ -46,10 +53,13 @@ td, th {
   list-style: none;
   font-size: var(--font-large);
   color: lightgreen;
+  margin: 0;
+  padding: 0;
 }
 
 li {
-  padding: 10px;
+  padding-left: 20px;
+  cursor: pointer;
 }
 
 .container {
