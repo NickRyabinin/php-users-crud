@@ -40,7 +40,7 @@ $request = new Request();
 $router = new Router();
 $view = new View(TEMPLATES_PATH);
 $user = new User($pdo);
-$userController = new UserController($request, $user);
+$userController = new UserController($request, $user, $view);
 $pageController = new PageController($view);
 
 $controllers = [
