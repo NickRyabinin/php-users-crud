@@ -1,6 +1,7 @@
 <div class="container">
   <h2>Пользователи</h2>
   <div>
+    <button><a href="/users/new">Создать</a></button>
     <table>
       <thead>
       <tr>
@@ -26,6 +27,8 @@
             <td><?= $user['created_at'] ?? '' ?></td>
             <td><?= $user['role'] ?? '' ?></td>
           </tr>
+          <button><a href="/users/<?= $user['id'] ?>/edit">Изменить</a></button>
+          <button><a href="/users/<?= $user['id'] ?>/delete">Удалить</a></button>
         <?php endforeach ?>
       </tbody>
     </table>
