@@ -15,6 +15,10 @@ class UserController
         $this->view = $view;
     }
 
+    public function register() {}
+
+    public function login() {}
+
     public function create(): void
     {
         echo "UserController->create() invoked";
@@ -38,6 +42,8 @@ class UserController
         */
     }
 
+    public function store() {}
+
     public function read(): void
     {
         // echo "UserController->read() invoked";
@@ -56,6 +62,12 @@ class UserController
         ];
         $this->view->render('users/index', $data, 'Список пользователей');
     }
+
+    public function index() {}
+
+    public function show() {}
+
+    public function edit() {}
 
     public function update(): void
     {
