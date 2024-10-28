@@ -15,13 +15,17 @@ class UserController
         $this->view = $view;
     }
 
-    public function register() {}
+    public function register() {
+        $this->view->render('auth/register', [], 'Регистрация пользователя');
+    }
 
-    public function login() {}
+    public function login() {
+        $this->view->render('auth/login', [], 'Вход в приложение');
+    }
 
     public function create(): void
     {
-        echo "UserController->create() invoked";
+        $this->view->render('users/create', [], 'Создание пользователя');
         /*
         $inputData = $this->request->getInputData();
         $cleanData = array_map(fn ($param) => $this->request->sanitize($this->request->validate($param)), $inputData);
@@ -42,20 +46,11 @@ class UserController
         */
     }
 
-    public function store() {}
+    public function store() {
+        echo "UserController->store() invoked";
+    }
 
-    public function read(): void
-    {
-        // echo "UserController->read() invoked";
-        /*
-        $page = $this->request->getPage();
-        $id = $this->request->getId();
-        match ($id) {
-            '' => parent::handleEmptyId(page: $page),
-            false => parent::handleInvalidId(),
-            default => parent::handleValidId($id)
-        };
-        */
+    public function index() {
         $users = [];
         $data = [
             'users' => $users
@@ -63,11 +58,13 @@ class UserController
         $this->view->render('users/index', $data, 'Список пользователей');
     }
 
-    public function index() {}
+    public function show() {
+        $this->view->render('users/show', [], 'Просмотр пользователя');
+    }
 
-    public function show() {}
-
-    public function edit() {}
+    public function edit() {
+        $this->view->render('users/edit', [], 'Изменение пользователя');
+    }
 
     public function update(): void
     {
