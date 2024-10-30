@@ -5,6 +5,12 @@ namespace src;
 class Router
 {
     private $routes = [];
+    private $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
 
     // Метод для добавления маршрутов
     public function addRoute($method, $route, $controller, $action)
@@ -27,18 +33,19 @@ class Router
     // Метод для обработки маршрутов
     public function route()
     {
-        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $requestMethod = $this->request->getHttpMethod();
 
         // Проверяем наличие скрытого поля для метода (для правильной обработки PUT и DELETE)
-        if ($requestMethod === 'POST' && isset($_POST['http_method'])) {
-            $requestMethod = strtoupper($_POST['http_method']);
+        $hiddenRequestMethod = $this->request->getFormData('http_method');
+        if ($requestMethod === 'POST' && $hiddenRequestMethod) {
+            $requestMethod = strtoupper($hiddenRequestMethod);
         }
 
-        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $requestPath = $this->request->getParsedUrl()['path'];
         if (isset($this->routes[$requestMethod])) {
             foreach ($this->routes[$requestMethod] as $route => $controllerAction) {
                 // Проверка маршрута с параметрами
-                if (preg_match('#^' . str_replace(['{id}'], ['(\d+)'], $route) . '$#', $requestUri, $matches)) {
+                if (preg_match('#^' . str_replace(['{id}'], ['(\d+)'], $route) . '$#', $requestPath, $matches)) {
                     array_shift($matches); // Удаляем первый элемент (полное совпадение)
                     [$controller, $action] = $controllerAction;
                     call_user_func_array([$controller, $action], $matches);
