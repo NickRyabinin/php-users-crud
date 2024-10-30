@@ -8,9 +8,23 @@ namespace src;
 
 class Request
 {
-    public function getRequest(): array
+    private $data;
+    private $files;
+
+    public function __construct()
     {
-        return explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        $this->data = $_POST;
+        $this->files = $_FILES;
+    }
+
+    public function getFormData(string $key): mixed
+    {
+        return $this->data[$key] ?? null;
+    }
+
+    public function getFile(string $key): mixed
+    {
+        return $this->files[$key] ?? null;
     }
 
     public function getHttpMethod(): string
@@ -18,6 +32,11 @@ class Request
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
+    public function getParsedUrl(): array
+    {
+        return parse_url($_SERVER['REQUEST_URI']);
+    }
+/*
     public function getId(): string | bool
     {
         $request = $this->getRequest();
@@ -50,4 +69,5 @@ class Request
     {
         return json_decode(file_get_contents('php://input'), true) ?? [];
     }
+*/
 }
