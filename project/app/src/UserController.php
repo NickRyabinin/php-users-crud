@@ -8,18 +8,20 @@ class UserController
     private $user;
     private $view;
 
-    public function __construct($request, $user, $view)
+    public function __construct(Request $request, User $user, View $view)
     {
         $this->request = $request;
         $this->user = $user;
         $this->view = $view;
     }
 
-    public function register() {
+    public function register()
+    {
         $this->view->render('auth/register', [], 'Регистрация пользователя');
     }
 
-    public function login() {
+    public function login()
+    {
         $this->view->render('auth/login', [], 'Вход в приложение');
     }
 
@@ -46,11 +48,50 @@ class UserController
         */
     }
 
-    public function store() {
-        echo "UserController->store() invoked";
+    public function store()
+    {
+        // Получаем из Request данные, введённые в форму
+        $login = $this->request->getFormData('username');
+        $email = $this->request->getFormData('email');
+        $password = $this->request->getFormData('password');
+        $confirmPassword = $this->request->getFormData('confirm_password');
+        $role = $this->request->getFormData('role');
+        $isActive = $this->request->getFormData('is_active') === 'true';
+
+        // Получаем файл аватара
+        $uploadedFile = $this->request->getFile('profile_picture');
+
+        // Тут надо добавить валидацию данных и вывод флэша об ошибках
+        // проверить $password === $confirmPassword
+        // проверить размер загруженного аватара
+
+        if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = '/assets/avatars/';
+            $profilePicture = $uploadDir . basename($uploadedFile['name']);
+        
+            // Перемещаем загруженный файл в нужную директорию
+            if (move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
+                // Файл ОК
+            } else {
+                $profilePicture = '';
+                // Ошибка при загрузке файла
+            }
+        }
+
+        $hashedPassword = hash('sha256', $password);
+        $this->user->store([
+            'login' => $login,
+            'email' => $email,
+            'hashed_password' => $hashedPassword,
+            'profile_picture' => $profilePicture,
+            'is_active' => $isActive,
+            'role' => $role,
+        ]);
+        // Сюда флэш ОК
     }
 
-    public function index() {
+    public function index()
+    {
         $users = [];
         $data = [
             'users' => $users
@@ -58,11 +99,13 @@ class UserController
         $this->view->render('users/index', $data, 'Список пользователей');
     }
 
-    public function show() {
+    public function show()
+    {
         $this->view->render('users/show', [], 'Просмотр пользователя');
     }
 
-    public function edit() {
+    public function edit()
+    {
         $this->view->render('users/edit', [], 'Изменение пользователя');
     }
 
