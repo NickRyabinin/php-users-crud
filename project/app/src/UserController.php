@@ -60,20 +60,20 @@ class UserController
 
         // Получаем файл аватара
         $uploadedFile = $this->request->getFile('profile_picture');
+        $profilePicture = '';
 
         // Тут надо добавить валидацию данных и вывод флэша об ошибках
         // проверить $password === $confirmPassword
         // проверить размер загруженного аватара
 
         if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = '/assets/avatars/';
+            $uploadDir = __DIR__ . '/../assets/avatars/';
             $profilePicture = $uploadDir . basename($uploadedFile['name']);
         
             // Перемещаем загруженный файл в нужную директорию
             if (move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
                 // Файл ОК
             } else {
-                $profilePicture = '';
                 // Ошибка при загрузке файла
             }
         }
@@ -88,11 +88,15 @@ class UserController
             'role' => $role,
         ]);
         // Сюда флэш ОК
+
+        // Редирект на маршрут  GET /users
+        header('Location: /users');
+        exit();
     }
 
     public function index()
     {
-        $users = [];
+        $users = $this->user->index()['items'];
         $data = [
             'users' => $users
         ];
