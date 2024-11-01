@@ -1,3 +1,5 @@
 db
 .env
 error.log
+avatars/*
+!avatars/.gitkeep
