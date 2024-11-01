@@ -119,3 +119,9 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+img {
+  max-width: 90px;
+  max-height: 120px;
+  border-radius: 50%;
+}
