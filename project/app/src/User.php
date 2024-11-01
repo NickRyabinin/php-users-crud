@@ -10,7 +10,8 @@ class User
         'email',
         'hashed_password',
         'profile_picture',
-        'is_active'
+        'is_active',
+        'role'
     ];
     private array $viewableProperties = [
         'id',
@@ -35,7 +36,7 @@ class User
         return $this->entity;
     }
 
-    public function index(string $page): array
+    public function index(string $page = '1'): array
     {
         $offset = ((int)$page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
