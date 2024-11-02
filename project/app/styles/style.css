@@ -107,8 +107,9 @@ input[type="password"] {
 }
 
 button {
-  width: 100%;
+  width: 150px;
   padding: 10px;
+  margin: 5px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -118,6 +119,15 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.button-container {
+  text-align: right;
+  margin: 5px;
+}
+
+.actions-button-container {
+  text-align: center;
 }
 
 img {
