@@ -8,7 +8,7 @@ return [
         '/users/register' => [UserController::class, 'register'],
         '/users/login' => [UserController::class, 'login'],
         '/users/new' => [UserController::class, 'create'],
-        '/users/edit' => [UserController::class, 'edit'],
+        '/users/{id}/edit' => [UserController::class, 'edit'],
         '/users/{id}' => [UserController::class, 'show'],
         '/users' => [UserController::class, 'index'],
         '/' => [PageController::class, 'read']
