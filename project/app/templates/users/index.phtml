@@ -1,7 +1,9 @@
 <div class="container">
   <h2>Пользователи</h2>
   <div>
-    <button><a href="/users/new">Создать</a></button>
+    <div class="button-container">
+      <button><a href="/users/new">Создать</a></button>
+    </div>
     <table>
       <thead>
       <tr>
@@ -13,6 +15,7 @@
           <th>Is active</th>
           <th>Created at</th>
           <th>Role</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -26,9 +29,11 @@
             <td><?= $user['is_active'] ?? '' ?></td>
             <td><?= $user['created_at'] ?? '' ?></td>
             <td><?= $user['role'] ?? '' ?></td>
+            <td class="actions-button-container">
+              <button><a href="/users/<?= $user['id'] ?>/edit">Изменить</a></button>
+              <button><a href="/users/<?= $user['id'] ?>/delete">Удалить</a></button>
+            </td>
           </tr>
-          <button><a href="/users/<?= $user['id'] ?>/edit">Изменить</a></button>
-          <button><a href="/users/<?= $user['id'] ?>/delete">Удалить</a></button>
         <?php endforeach ?>
       </tbody>
     </table>
