@@ -31,7 +31,11 @@
             <td><?= $user['role'] ?? '' ?></td>
             <td class="actions-button-container">
               <button><a href="/users/<?= $user['id'] ?>/edit">Изменить</a></button>
-              <button><a href="/users/<?= $user['id'] ?>/delete">Удалить</a></button>
+              <form action="/users/<?= $user['id'] ?>" method="post">
+                <input type="hidden" name="http_method" value="DELETE">
+                <button type="submit">Удалить</button>
+                <input type="checkbox" name="delete_confirmation" id="delete_confirmation" value="true">
+              </form>
             </td>
           </tr>
         <?php endforeach ?>
