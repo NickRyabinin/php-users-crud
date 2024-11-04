@@ -36,19 +36,24 @@ class Request
     {
         return parse_url($_SERVER['REQUEST_URI']);
     }
-/*
-    public function getId(): string | bool
-    {
-        $request = $this->getRequest();
-        $id = $request[1] ?? '';
 
-        if ($id !== '' && preg_match('/^\d+$/', $id)) {
-            return (string)$id;
+    public function getResourceId(): ?int
+    {
+        $parsedUrl = $this->getParsedUrl();
+        $path = $parsedUrl['path'] ?? '';
+
+        $segments = explode('/', trim($path, '/')); // Разбиваем путь по слешам
+        $id = $segments[1] ?? ''; // Путь должен иметь формат /resource/{id}/...
+
+        // id должен быть числом больше 0
+        if ($id !== '' && preg_match('/^[1-9]\d*$/', $id)) {
+            return (int)$id;
         }
 
-        return false;
+        return null;
     }
 
+    /*
     public function getPage(): string
     {
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
