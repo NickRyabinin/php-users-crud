@@ -135,8 +135,18 @@ class UserController
 
     public function delete(): void
     {
-        echo "UserController->delete() invoked";
-        /*$id = $this->request->getId();
+        $id = $this->request->getResourceId();
+        $deleteConfirmation = $this->request->getFormData('delete_confirmation');
+
+        if ($id && $deleteConfirmation) {
+            $this->user->destroy($id);
+        }
+
+        // Сюда флэш ОК
+        header('Location: /users');
+        exit();
+
+        /*
         try {
             $this->user->destroy($id);
             parent::handleDeletedOk();
