@@ -116,7 +116,7 @@ class User
         }
     }
 
-    public function destroy(string $id): bool
+    public function destroy(int $id): bool
     {
         if (!$this->checkId($id)) {
             return false;
@@ -133,13 +133,13 @@ class User
         }
     }
 
-    private function checkId(string $id): bool
+    private function checkId(int $id): bool
     {
-        $query = "SELECT EXISTS (SELECT id FROM {$this->entity}s WHERE id = :id) AS isExists";
+        $query = "SELECT EXISTS (SELECT id FROM {$this->entity}s WHERE id = :id) AS isexists";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([':id' => $id]);
 
-        return ($stmt->fetch())['isExists'] === 0;
+        return ($stmt->fetch())['isexists'];
     }
 
     private function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
