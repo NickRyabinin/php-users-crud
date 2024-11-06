@@ -105,7 +105,13 @@ class UserController
 
     public function show()
     {
-        $this->view->render('users/show', [], 'Просмотр пользователя');
+        $id = $this->request->getResourceId();
+        $user = $this->user->show($id);
+        $data = [
+            'user' => $user
+        ];
+
+        $this->view->render('users/show', $data, 'Профиль пользователя');
     }
 
     public function edit()
