@@ -55,13 +55,23 @@ class User
         return $result;
     }
 
-    public function show(string $id): array
+    public function show(int $id): array
     {
+        if (!$this->checkId($id)) {
+            return [];
+        };
+
         $columns = implode(' ,', $this->viewableProperties);
         $query = "SELECT {$columns} FROM {$this->entity}s WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute([':id' => $id]);
-        return [$stmt->fetch(\PDO::FETCH_ASSOC)];
+
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            return [];
+        }
     }
 
     public function store(array $data): bool
@@ -90,7 +100,7 @@ class User
         }
     }
 
-    public function update(string $id, array $data): bool
+    public function update(int $id, array $data): bool
     {
         $filteredData = array_intersect_key($data, array_flip($this->fillableProperties));
         if (count($filteredData) === 0 || !$this->checkId($id)) {
