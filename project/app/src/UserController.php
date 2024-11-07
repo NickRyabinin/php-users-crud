@@ -56,7 +56,7 @@ class UserController
         $password = $this->request->getFormData('password');
         $confirmPassword = $this->request->getFormData('confirm_password');
         $role = $this->request->getFormData('role');
-        $isActive = $this->request->getFormData('is_active') === 'true';
+        $isActive = $this->request->getFormData('is_active') ? 'true' : 'false';
 
         // Получаем файл аватара
         $uploadedFile = $this->request->getFile('profile_picture');
@@ -116,7 +116,13 @@ class UserController
 
     public function edit()
     {
-        $this->view->render('users/edit', [], 'Изменение пользователя');
+        $id = $this->request->getResourceId();
+        $user = $this->user->show($id);
+        $data = [
+            'user' => $user
+        ];
+
+        $this->view->render('users/edit', $data, 'Изменение пользователя');
     }
 
     public function update(): void
