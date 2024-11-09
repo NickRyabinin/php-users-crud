@@ -7,6 +7,7 @@ class UserController
     private $request;
     private $user;
     private $view;
+    private $captcha;
 
     public function __construct(Request $request, User $user, View $view)
     {
@@ -15,9 +16,17 @@ class UserController
         $this->view = $view;
     }
 
+    public function showRegistrationForm()
+    {
+        // Создать изображение Captcha
+        $this->view->render('auth/register', [], 'Регистрация пользователя');
+    }
+
     public function register()
     {
-        $this->view->render('auth/register', [], 'Регистрация пользователя');
+        echo "UserController->register() invoked";
+        // Проверить Captcha
+        // Вызвать store()
     }
 
     public function login()
