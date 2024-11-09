@@ -5,7 +5,7 @@ use src\PageController;
 
 return [
     'GET' => [
-        '/users/register' => [UserController::class, 'register'],
+        '/users/register' => [UserController::class, 'showRegistrationForm'],
         '/users/login' => [UserController::class, 'login'],
         '/users/new' => [UserController::class, 'create'],
         '/users/{id}/edit' => [UserController::class, 'edit'],
@@ -14,6 +14,7 @@ return [
         '/' => [PageController::class, 'read']
     ],
     'POST' => [
+        '/users/register' => [UserController::class, 'register'],
         '/users' => [UserController::class, 'store']
     ],
     'PUT' => [
