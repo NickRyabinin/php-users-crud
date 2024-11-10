@@ -9,16 +9,21 @@ class UserController
     private $view;
     private $captcha;
 
-    public function __construct(Request $request, User $user, View $view)
+    public function __construct(Request $request, User $user, View $view, Captcha $captcha)
     {
         $this->request = $request;
         $this->user = $user;
         $this->view = $view;
+        $this->captcha = $captcha;
+    }
+
+    public function showCaptcha()
+    {
+        $this->captcha->createCaptcha();
     }
 
     public function showRegistrationForm()
     {
-        // Создать изображение Captcha
         $this->view->render('auth/register', [], 'Регистрация пользователя');
     }
 
