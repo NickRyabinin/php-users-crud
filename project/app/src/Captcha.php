@@ -9,7 +9,7 @@ class Captcha {
     private $fontPath;
     private $captchaText;
 
-    public function __construct($width = 200, $height = 80, $fontSize = 30, $fontPath = '/../assets/fonts/OpenSans-Regular.ttf') {
+    public function __construct($width = 200, $height = 100, $fontSize = 30, $fontPath = '/assets/fonts/OpenSans-Regular.ttf') {
         $this->width = $width;
         $this->height = $height;
         $this->fontSize = $fontSize;
