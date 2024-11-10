@@ -6,6 +6,7 @@ use src\PageController;
 return [
     'GET' => [
         '/users/register' => [UserController::class, 'showRegistrationForm'],
+        '/users/captcha' => [UserController::class, 'showCaptcha'],
         '/users/login' => [UserController::class, 'login'],
         '/users/new' => [UserController::class, 'create'],
         '/users/{id}/edit' => [UserController::class, 'edit'],
