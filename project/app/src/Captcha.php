@@ -2,29 +2,34 @@
 
 namespace src;
 
-class Captcha {
+class Captcha
+{
     private $width;
     private $height;
     private $fontSize;
     private $fontPath;
     private $captchaText;
 
-    public function __construct($width = 200, $height = 80, $fontSize = 30, $fontPath = '/assets/fonts/OpenSans-Regular.ttf') {
+    public function __construct($width = 200, $height = 80, $fontSize = 30, $fontPath = '/assets/fonts/OpenSans-Regular.ttf')
+    {
         $this->width = $width;
         $this->height = $height;
         $this->fontSize = $fontSize;
         $this->fontPath = $fontPath;
     }
 
-    private function generateRandomText($length = 4) {
+    private function generateRandomText($length = 4)
+    {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         $this->captchaText = '';
         for ($i = 0; $i < $length; $i++) {
             $this->captchaText .= $characters[rand(0, strlen($characters) - 1)];
         }
+        $_SESSION['captcha_text'] = $this->captchaText;
     }
 
-    public function createCaptcha() {
+    public function createCaptcha()
+    {
         $this->generateRandomText();
 
         $image = imagecreatetruecolor($this->width, $this->height);
@@ -51,7 +56,8 @@ class Captcha {
         imagedestroy($image);
     }
 
-    private function renderCaptcha($image) {
+    private function renderCaptcha($image)
+    {
         // Устанавливаем заголовок, чтобы браузер знал, что это изображение PNG
         header('Content-Type: image/png');
         
@@ -59,7 +65,13 @@ class Captcha {
         imagepng($image);
     }
 
-    public function getCaptchaText() {
-        return $this->captchaText;
+    public function getCaptchaText()
+    {
+        return $_SESSION['captcha_text'];
+    }
+
+    public function clearCaptchaText()
+    {
+        unset($_SESSION['captcha_text']);
     }
 }
