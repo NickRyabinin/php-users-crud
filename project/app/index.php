@@ -27,6 +27,8 @@ use src\User;
 use src\View;
 use src\Request;
 
+session_start();
+
 const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 const ROUTES_PATH = __DIR__ . '/src/routes.php';
