@@ -29,9 +29,13 @@ class UserController
 
     public function register()
     {
-        echo "UserController->register() invoked";
-        // Проверить Captcha
-        // Вызвать store()
+        $captchaText = $this->captcha->getCaptchaText();
+        $this->captcha->clearCaptchaText();
+        $enteredCaptchaText = $this->request->getFormData('captcha_input');
+        if ($captchaText === $enteredCaptchaText) {
+            $this->store();
+        }
+        echo "Wrong captcha text";
     }
 
     public function login()
@@ -51,8 +55,8 @@ class UserController
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
         $confirmPassword = $this->request->getFormData('confirm_password');
-        $role = $this->request->getFormData('role');
-        $isActive = $this->request->getFormData('is_active') ? 'true' : 'false';
+        $role = $this->request->getFormData('role') ?? 'user';
+        $isActive = $this->request->getFormData('is_active') ? 'true' : 'false'; // ! Разобраться с inactive в форме auth/Register
 
         // Получаем файл аватара
         $uploadedFile = $this->request->getFile('profile_picture');
