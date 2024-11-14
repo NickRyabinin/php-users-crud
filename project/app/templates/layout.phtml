@@ -15,6 +15,13 @@
     <?php include __DIR__ . '/nav/navigation.phtml'; ?>
   </nav>
   <main>
+    <?php if (!empty($flash)) : ?>
+      <?php foreach ($flash as $key => $messages) : ?>
+        <?php foreach ($messages as $message) : ?>
+          <div class="flash flash-<?= htmlspecialchars($key) ?>" role="alert"><?= htmlspecialchars($message) ?></div>
+        <?php endforeach; ?>
+      <?php endforeach; ?>
+    <?php endif; ?>
     <?= $content ?>
   </main>
 </body>
