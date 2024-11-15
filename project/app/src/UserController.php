@@ -8,13 +8,15 @@ class UserController
     private $user;
     private $view;
     private $captcha;
+    private $flash;
 
-    public function __construct(Request $request, User $user, View $view, Captcha $captcha)
+    public function __construct(Request $request, User $user, View $view, Captcha $captcha, Flash $flash)
     {
         $this->request = $request;
         $this->user = $user;
         $this->view = $view;
         $this->captcha = $captcha;
+        $this->flash = $flash;
     }
 
     public function showCaptcha()
