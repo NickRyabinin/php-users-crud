@@ -20,6 +20,7 @@ spl_autoload_register(function ($className) {
 
 use src\Captcha;
 use src\Database;
+use src\Flash;
 use src\PageController;
 use src\Router;
 use src\UserController;
@@ -43,8 +44,9 @@ $request = new Request();
 $router = new Router($request);
 $view = new View(TEMPLATES_PATH);
 $captcha = new Captcha();
+$flash = new Flash();
 $user = new User($pdo);
-$userController = new UserController($request, $user, $view, $captcha);
+$userController = new UserController($request, $user, $view, $captcha, $flash);
 $pageController = new PageController($view);
 
 $controllers = [
