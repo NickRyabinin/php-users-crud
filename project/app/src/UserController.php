@@ -26,7 +26,8 @@ class UserController
 
     public function showRegistrationForm()
     {
-        $this->view->render('auth/register', [], 'Регистрация пользователя');
+        $flashMessages = $this->flash->get();
+        $this->view->render('auth/register', ['flash' => $flashMessages], 'Регистрация пользователя');
     }
 
     public function register()
@@ -35,19 +36,27 @@ class UserController
         $this->captcha->clearCaptchaText();
         $enteredCaptchaText = $this->request->getFormData('captcha_input');
         if ($captchaText === $enteredCaptchaText) {
+            $flashMessage = "Registration successful";
+            $this->flash->set('success', $flashMessage);
             $this->store();
         }
-        echo "Wrong captcha text";
+        $flashMessage = "Wrong captcha text";
+        $this->flash->set('error', $flashMessage);
+
+        header('Location: /users/register');
+        exit();
     }
 
     public function login()
     {
-        $this->view->render('auth/login', [], 'Вход в приложение');
+        $flashMessages = $this->flash->get();
+        $this->view->render('auth/login', ['flash' => $flashMessages], 'Вход в приложение');
     }
 
     public function create(): void
     {
-        $this->view->render('users/create', [], 'Создание пользователя');
+        $flashMessages = $this->flash->get();
+        $this->view->render('users/create', ['flash' => $flashMessages], 'Создание пользователя');
     }
 
     public function store()
@@ -89,7 +98,8 @@ class UserController
             'is_active' => $isActive,
             'role' => $role,
         ]);
-        // Сюда флэш ОК
+        $flashMessage = "User created successfully";
+        $this->flash->set('success', $flashMessage);
 
         // Редирект на маршрут  GET /users
         header('Location: /users');
@@ -99,7 +109,9 @@ class UserController
     public function index()
     {
         $users = $this->user->index()['items'];
+        $flashMessages = $this->flash->get();
         $data = [
+            'flash' => $flashMessages,
             'users' => $users
         ];
         $this->view->render('users/index', $data, 'Список пользователей');
@@ -109,7 +121,9 @@ class UserController
     {
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
+        $flashMessages = $this->flash->get();
         $data = [
+            'flash' => $flashMessages,
             'user' => $user
         ];
 
@@ -120,7 +134,9 @@ class UserController
     {
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
+        $flashMessages = $this->flash->get();
         $data = [
+            'flash' => $flashMessages,
             'user' => $user
         ];
 
@@ -166,7 +182,9 @@ class UserController
             'is_active' => $isActive,
             'role' => $role,
         ]);
-        // Сюда флэш ОК
+
+        $flashMessage = "User updated successfully";
+        $this->flash->set('success', $flashMessage);
 
         // Редирект на маршрут  GET /users
         header('Location: /users');
@@ -179,10 +197,11 @@ class UserController
         $deleteConfirmation = $this->request->getFormData('delete_confirmation');
 
         if ($id && $deleteConfirmation) {
+            $flashMessage = "User deleted successfully";
+            $this->flash->set('success', $flashMessage);
             $this->user->destroy($id);
         }
 
-        // Сюда флэш ОК
         header('Location: /users');
         exit();
     }
