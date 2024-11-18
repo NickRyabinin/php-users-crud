@@ -41,5 +41,17 @@
         <?php endforeach ?>
       </tbody>
     </table>
+    <!-- Пагинация -->
+    <div class="pagination">
+      <?php if ($currentPage > 1): ?>
+        <a href="?page=<?= $currentPage - 1 ?>">&lt;&lt;</a>
+      <?php endif; ?>
+
+      <span>Страница <?= $currentPage ?> из <?= $totalPages ?></span>
+
+      <?php if ($currentPage < $totalPages): ?>
+        <a href="?page=<?= $currentPage + 1 ?>">&gt;&gt;</a>
+      <?php endif; ?>
+    </div>
   </div>
 </div>
