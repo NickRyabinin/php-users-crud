@@ -53,13 +53,12 @@ class Request
         return null;
     }
 
-    /*
-    public function getPage(): string
+    public function getPage(): int
     {
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
-        return (preg_match('/^[1-9]\d*$/', $page)) ? (string)$page : 1;
+        return (preg_match('/^[1-9]\d*$/', $page)) ? (int)$page : 1;
     }
-
+/*
     public function getResource(string $parent = ''): string
     {
         if ($parent) {
