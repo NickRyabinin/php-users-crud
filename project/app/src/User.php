@@ -36,9 +36,9 @@ class User
         return $this->entity;
     }
 
-    public function index(string $page = '1'): array
+    public function index(int $page = 1): array
     {
-        $offset = ((int)$page - 1) * 10;
+        $offset = ($page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
         $query = "SELECT {$columns} FROM {$this->entity}s LIMIT 10 OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
@@ -152,7 +152,7 @@ class User
         return ($stmt->fetch())['isexists'];
     }
 
-    private function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
+    /*private function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
     {
         $query = "SELECT {$field} AS 'result' FROM {$model}s WHERE {$conditionKey} = :{$conditionKey}";
         try {
@@ -163,7 +163,7 @@ class User
             return false;
         }
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'];
-    }
+    }*/
 
     private function getTotalRecords(): int
     {
