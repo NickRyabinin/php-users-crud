@@ -108,12 +108,22 @@ class UserController
 
     public function index()
     {
-        $users = $this->user->index()['items'];
+        $currentPage = $this->request->getPage();
+        $usersData = $this->user->index($currentPage);
+        $users = $usersData['items'];
+        $totalRecords = $usersData['total'];
+        $limit = $usersData['limit'];
+        $totalPages = ceil($totalRecords / $limit);
         $flashMessages = $this->flash->get();
+
         $data = [
             'flash' => $flashMessages,
-            'users' => $users
+            'users' => $users,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+            'totalRecords' => $totalRecords
         ];
+
         $this->view->render('users/index', $data, 'Список пользователей');
     }
 
