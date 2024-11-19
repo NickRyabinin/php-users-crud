@@ -13,7 +13,6 @@
 body {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
@@ -23,7 +22,7 @@ body {
 
 nav {
   width: 100%;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   background-color: #111111;
@@ -66,6 +65,14 @@ li {
   display: flex;
   flex-direction: column;
   margin: 10px;
+  margin-top: 60px;
+}
+
+.card-container {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
 }
 
 .card {
