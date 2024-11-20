@@ -7,7 +7,7 @@ return [
     'GET' => [
         '/users/register' => [UserController::class, 'showRegistrationForm'],
         '/users/captcha' => [UserController::class, 'showCaptcha'],
-        '/users/login' => [UserController::class, 'login'],
+        '/users/login' => [UserController::class, 'showLoginForm'],
         '/users/new' => [UserController::class, 'create'],
         '/users/{id}/edit' => [UserController::class, 'edit'],
         '/users/{id}' => [UserController::class, 'show'],
@@ -16,6 +16,7 @@ return [
     ],
     'POST' => [
         '/users/register' => [UserController::class, 'register'],
+        '/users/login' => [UserController::class, 'login'],
         '/users' => [UserController::class, 'store']
     ],
     'PUT' => [
