@@ -47,10 +47,27 @@ class UserController
         exit();
     }
 
-    public function login()
+    public function showLoginForm()
     {
         $flashMessages = $this->flash->get();
         $this->view->render('auth/login', ['flash' => $flashMessages], 'Вход в приложение');
+    }
+
+    public function login()
+    {
+        $captchaText = $this->captcha->getCaptchaText();
+        $this->captcha->clearCaptchaText();
+        $enteredCaptchaText = $this->request->getFormData('captcha_input');
+        if ($captchaText === $enteredCaptchaText) {
+            $flashMessage = "Login OK";
+            $this->flash->set('success', $flashMessage);
+            echo "Login OK";
+        }
+        $flashMessage = "Wrong captcha text";
+        $this->flash->set('error', $flashMessage);
+
+        header('Location: /users/login');
+        exit();
     }
 
     public function create(): void
