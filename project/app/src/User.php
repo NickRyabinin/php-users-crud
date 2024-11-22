@@ -40,7 +40,7 @@ class User
     {
         $offset = ($page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
-        $query = "SELECT {$columns} FROM {$this->entity}s LIMIT 10 OFFSET {$offset}";
+        $query = "SELECT {$columns} FROM {$this->entity}s ORDER BY id LIMIT 10 OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         $result = [
@@ -171,5 +171,18 @@ class User
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         return $stmt->fetchColumn();
+    }
+
+    public function updateLastLogin(string $email): bool
+    {
+        $query = "UPDATE {$this->entity}s SET last_login = NOW() WHERE email = :email";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindValue(':email', $email);
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            return false;
+        }
     }
 }
