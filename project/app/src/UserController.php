@@ -59,9 +59,18 @@ class UserController
         $this->captcha->clearCaptchaText();
         $enteredCaptchaText = $this->request->getFormData('captcha_input');
         if ($captchaText === $enteredCaptchaText) {
+            $email = $this->request->getFormData('email');
+            // Проверить емейл и пароль
+            // Если проверка успешна, обновляем last_login
+            $this->user->updateLastLogin($email);
+            // И выполняем логику входа
+
             $flashMessage = "Login OK";
             $this->flash->set('success', $flashMessage);
-            echo "Login OK";
+
+            header('Location: /users');
+            // header('Location: /user/{:id}/profile'); // Надо перенаправить на профиль пользователя
+            exit();
         }
         $flashMessage = "Wrong captcha text";
         $this->flash->set('error', $flashMessage);
