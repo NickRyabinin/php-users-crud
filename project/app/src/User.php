@@ -152,9 +152,9 @@ class User
         return ($stmt->fetch())['isexists'];
     }
 
-    /*private function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
+    public function getValue(string $model, string $field, string $conditionKey, string $conditionValue): mixed
     {
-        $query = "SELECT {$field} AS 'result' FROM {$model}s WHERE {$conditionKey} = :{$conditionKey}";
+        $query = "SELECT {$field} AS \"result\" FROM {$model}s WHERE {$conditionKey} = :{$conditionKey}";
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([":{$conditionKey}" => $conditionValue]);
@@ -162,8 +162,8 @@ class User
             error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
             return false;
         }
-        return $stmt->fetch(\PDO::FETCH_ASSOC)['result'];
-    }*/
+        return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
+    }
 
     private function getTotalRecords(): int
     {
