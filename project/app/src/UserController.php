@@ -60,21 +60,33 @@ class UserController
         $enteredCaptchaText = $this->request->getFormData('captcha_input');
         if ($captchaText === $enteredCaptchaText) {
             $email = $this->request->getFormData('email');
-            // Проверить емейл и пароль
-            // Если проверка успешна, обновляем last_login
-            $this->user->updateLastLogin($email);
-            // И выполняем логику входа
-
-            $flashMessage = "Login OK";
-            $this->flash->set('success', $flashMessage);
-
-            header('Location: /users');
-            // header('Location: /user/{:id}/profile'); // Надо перенаправить на профиль пользователя
+            $password = $this->request->getFormData('password');
+            $hashedPassword = hash('sha256', $password);
+            $userId = $this->user->getValue('user', 'id', 'email', $email);
+            if ($userId) {
+                $user = $this->user->show($userId);
+                $userHashedPassword = $user['hashed_password'];
+                if ($hashedPassword === $userHashedPassword) {
+                    $this->user->updateLastLogin($email);
+                    // Выполняем логику входа
+                    $flashMessage = "Login OK";
+                    $this->flash->set('success', $flashMessage);
+                    header('Location: /users');
+                    // header('Location: /user/{:id}/profile'); // Надо перенаправить на профиль пользователя
+                    exit();
+                }
+                $flashMessage = "Wrong password";
+                $this->flash->set('error', $flashMessage);
+                header('Location: /users/login');
+                exit();
+            }
+            $flashMessage = "Нет такого пользователя";
+            $this->flash->set('error', $flashMessage);
+            header('Location: /users/login');
             exit();
         }
         $flashMessage = "Wrong captcha text";
         $this->flash->set('error', $flashMessage);
-
         header('Location: /users/login');
         exit();
     }
