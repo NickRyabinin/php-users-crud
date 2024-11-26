@@ -4,25 +4,15 @@ namespace src;
 
 class Validator
 {
-    /*public function validate(array $user, array $users): array
+    private $model;
+
+    public function __construct($model)
     {
-        $errors = [];
-        if (mb_strlen($user['login']) < 4 || mb_strlen($user['login']) > 20) {
-            $errors['login'] = "User's login must be between 4 and 20 symbols";
-        }
-        if ($user['email'] === '') {
-            $errors['email'] = "Email can't be blank";
-        }
-        foreach ($users as $existedUser) {
-            if ($user['email'] === $existedUser['email']) {
-                $errors['email'] = "Some user already used this email. Email must be unique!";
-            }
-        }
-        return $errors;
-    }*/
+        $this->model = $model;
+    }
 
     // Попытка сделать, "как в Laravel"
-    public function validate(array $validationRules, array $userData, array $existingUsers): array
+    public function validate(array $validationRules, array $userData): array
     {
         $errors = [];
 
@@ -51,12 +41,10 @@ class Validator
                         break;
 
                     case 'unique':
-                        // Надо переделать, чтобы не тащить всю базу пользователей. Возможно, напрямую работать с моделью
                         $uniqueField = explode(':', $rule)[1];
-                        foreach ($existingUsers as $existingUser) {
-                            if ($value === $existingUser[$uniqueField]) {
-                                $errors[$field] = "The {$field} has already been taken.";
-                            }
+                        $existingValue = $this->model->getValue('user', $uniqueField, $uniqueField, $value);
+                        if ($existingValue) {
+                            $errors[$field] = "The {$field} has already been taken.";
                         }
                         break;
 
@@ -74,7 +62,7 @@ class Validator
                         }
                         break;
 
-                    // Ещё правила
+                        // Ещё правила
                 }
             }
         }
