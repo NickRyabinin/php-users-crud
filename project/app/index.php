@@ -3,6 +3,7 @@
 /**
  * Единая точка входа в приложение.
  * Выполняет подключение к БД, миграцию (только создание таблиц),
+ * создание экземпляров сущностей, инжекцию зависимостей,
  * добавляет в роутер существующие маршруты, запускает роутинг.
  */
 
@@ -27,6 +28,7 @@ use src\UserController;
 use src\User;
 use src\View;
 use src\Request;
+use src\Validator;
 
 session_start();
 
@@ -46,7 +48,17 @@ $view = new View(TEMPLATES_PATH);
 $captcha = new Captcha();
 $flash = new Flash();
 $user = new User($pdo);
-$userController = new UserController($request, $user, $view, $captcha, $flash);
+$validator = new Validator($user); // Для универсальности лучше создать и внедрять родительскую $model
+$userController = new UserController(
+    [
+        'request' => $request,
+        'user' => $user,
+        'view' => $view,
+        'captcha' => $captcha,
+        'flash' => $flash,
+        'validator' => $validator
+    ]
+);
 $pageController = new PageController($view);
 
 $controllers = [
