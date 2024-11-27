@@ -9,14 +9,16 @@ class UserController
     private $view;
     private $captcha;
     private $flash;
+    private $validator;
 
-    public function __construct(Request $request, User $user, View $view, Captcha $captcha, Flash $flash)
+    public function __construct(array $params)
     {
-        $this->request = $request;
-        $this->user = $user;
-        $this->view = $view;
-        $this->captcha = $captcha;
-        $this->flash = $flash;
+        $this->request = $params['request'];
+        $this->user = $params['user'];
+        $this->view = $params['view'];
+        $this->captcha = $params['captcha'];
+        $this->flash = $params['flash'];
+        $this->validator = $params['validator'];
     }
 
     public function showCaptcha()
