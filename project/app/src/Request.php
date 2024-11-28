@@ -19,7 +19,7 @@ class Request
 
     public function getFormData(string $key): mixed
     {
-        return $this->data[$key] ?? null;
+        return isset($this->data[$key]) ? htmlspecialchars($this->data[$key], ENT_QUOTES, 'UTF-8') : null;
     }
 
     public function getFile(string $key): mixed
@@ -67,11 +67,6 @@ class Request
             $resource = isset($this->getRequest()[2]) ? $this->getRequest()[2] : $this->getRequest()[0];
         }
         return $this->sanitize($this->validate($resource));
-    }
-
-    public function getInputData(): array
-    {
-        return json_decode(file_get_contents('php://input'), true) ?? [];
     }
 */
 }
