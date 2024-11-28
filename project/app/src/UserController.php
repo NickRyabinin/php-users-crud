@@ -105,7 +105,7 @@ class UserController
         $login = $this->request->getFormData('username');
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
-        $confirmPassword = $this->request->getFormData('confirm_password');
+        $passwordConfirmation = $this->request->getFormData('confirm_password');
         $role = $this->request->getFormData('role') ?? 'user';
         $isActive = $this->request->getFormData('is_active') ? 'true' : 'false'; // ! Разобраться с inactive в форме auth/Register
 
@@ -114,8 +114,28 @@ class UserController
         $profilePicture = '';
 
         // Тут надо добавить валидацию данных и вывод флэша об ошибках
-        // проверить $password === $confirmPassword
+        // проверить $password === $passwordConfirmation
         // проверить размер загруженного аватара
+        $validationRules = [
+            'login' => 'required|string|min:3|max:20|unique:login',
+            'email' => 'required|email|unique:email',
+            'password' => 'required|min:8|max:20',
+            'confirm_password' => 'required|min:8|max:20'
+        ];
+        $dataToValidate = [
+            'login' => $login,
+            'email' => $email,
+            'password' => $password,
+            'confirm_password' => $passwordConfirmation
+        ];
+        $errors = $this->validator->validate($validationRules, $dataToValidate);
+        if (!empty($errors)) {
+            foreach ($errors as $field => $error) {
+                $this->flash->set('error', $error);
+            }
+            header('Location: /users/showRegistrationForm'); //!!! Разобраться, на какую именно форму перенаправлять: registration или creation
+            exit();
+        }
 
         if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../assets/avatars/';
@@ -200,7 +220,7 @@ class UserController
         $login = $this->request->getFormData('username');
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
-        $confirmPassword = $this->request->getFormData('confirm_password');
+        $passwordConfirmation = $this->request->getFormData('confirm_password');
         $role = $this->request->getFormData('role');
         $isActive = $this->request->getFormData('is_active') ? 'true' : 'false';
 
