@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Класс Captcha предоставляет приложению методы для генерации изображения
+ * с буквенно-цифровой капчей и работы с текстом капчи.
+ */
+
 namespace src;
 
 class Captcha
@@ -10,7 +15,7 @@ class Captcha
     private $fontPath;
     private $captchaText;
 
-    public function __construct($width = 200, $height = 80, $fontSize = 30, $fontPath = '/assets/fonts/OpenSans-Regular.ttf')
+    public function __construct(int $width = 200, int $height = 80, int $fontSize = 30, string $fontPath = '/assets/fonts/OpenSans-Regular.ttf')
     {
         $this->width = $width;
         $this->height = $height;
@@ -18,7 +23,7 @@ class Captcha
         $this->fontPath = $fontPath;
     }
 
-    private function generateRandomText($length = 4)
+    private function generateRandomText(int $length = 4): void
     {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         $this->captchaText = '';
@@ -28,7 +33,7 @@ class Captcha
         $_SESSION['captcha_text'] = $this->captchaText;
     }
 
-    public function createCaptcha()
+    public function createCaptcha(): void
     {
         $this->generateRandomText();
 
@@ -36,9 +41,9 @@ class Captcha
         $backgroundColor = imagecolorallocate($image, 255, 255, 255); // белый фон
         imagefilledrectangle($image, 0, 0, $this->width, $this->height, $backgroundColor);
 
-        // Добавляем шумы
-        for ($i = 0; $i < 100; $i++) {
-            $noiseColor = imagecolorallocate($image, rand(200, 255), rand(200, 255), rand(200, 255));
+        // Добавляем лёгкие шумы
+        for ($i = 0; $i < 256; $i++) {
+            $noiseColor = imagecolorallocate($image, rand(0, 100), rand(0, 100), rand(0, 100));
             imagesetpixel($image, rand(0, $this->width), rand(0, $this->height), $noiseColor);
         }
 
@@ -56,7 +61,7 @@ class Captcha
         imagedestroy($image);
     }
 
-    private function renderCaptcha($image)
+    private function renderCaptcha(mixed $image): void
     {
         // Устанавливаем заголовок, чтобы браузер знал, что это изображение PNG
         header('Content-Type: image/png');
@@ -65,12 +70,12 @@ class Captcha
         imagepng($image);
     }
 
-    public function getCaptchaText()
+    public function getCaptchaText(): string
     {
         return $_SESSION['captcha_text'];
     }
 
-    public function clearCaptchaText()
+    public function clearCaptchaText(): void
     {
         unset($_SESSION['captcha_text']);
     }
