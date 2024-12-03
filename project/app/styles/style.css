@@ -150,14 +150,16 @@ img {
   border-radius: 20%;
 }
 
+.flash-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+
 .flash {
-  position: fixed;
-  width: 100%;
-  top: 40px;
-  left: 0px;
   padding: 10px;
   margin: 10px 0;
-  z-index: 999;
   text-align: center;
 }
 
