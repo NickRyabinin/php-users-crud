@@ -154,13 +154,40 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 40px;
+  position: fixed;
+  top: 40px;
+  left: 0;
+  width: 100%;
+  z-index: 999;
 }
 
 .flash {
   padding: 10px;
   margin: 10px 0;
   text-align: center;
+  width: 80%;
+  position: relative;
+}
+
+.flash-close {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: var(--font-large);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: auto;
+  height: auto;
+}
+
+.flash-close:hover {
+  background: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .flash-success {

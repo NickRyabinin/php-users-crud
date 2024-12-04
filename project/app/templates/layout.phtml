@@ -19,7 +19,10 @@
       <div class="flash-container">
         <?php foreach ($flash as $key => $messages) : ?>
           <?php foreach ($messages as $message) : ?>
-            <div class="flash flash-<?= htmlspecialchars($key) ?>" role="alert"><?= htmlspecialchars($message) ?></div>
+            <div class="flash flash-<?= htmlspecialchars($key) ?>" role="alert">
+              <?= htmlspecialchars($message) ?>
+              <button class="flash-close" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
           <?php endforeach; ?>
         <?php endforeach; ?>
       </div>
