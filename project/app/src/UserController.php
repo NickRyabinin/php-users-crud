@@ -115,10 +115,8 @@ class UserController
         $role = $this->request->getFormData('role') ?? 'user';
         $isActiveValue = $this->request->getFormData('is_active') ?? true;
         $isActive = $isActiveValue ? 'true' : 'false';
-
-        // Получаем файл аватара
         $uploadedFile = $this->request->getFile('profile_picture');
-        $profilePicture = '';
+        /*$profilePicture = '';
         if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../assets/avatars/';
             $profilePicture = $uploadDir . basename($uploadedFile['name']);
@@ -129,47 +127,35 @@ class UserController
             } else {
                 // Ошибка при загрузке файла
             }
-        }
+        }*/
 
-        // Тут надо добавить валидацию данных и вывод флэша об ошибках
-        // проверить $password === $passwordConfirmation
-        // проверить размер загруженного аватара
-        /*$validationRules = [
-            'login' => 'required|string|min:3|max:20|unique:login',
-            'email' => 'required|email|unique:email',
-            'password' => 'required|min:8|max:20|current_password:login',
-            'confirm_password' => 'required|min:8|max:20',
-            'profile_picture' => 'image'
-        ];
-        $dataToValidate = [
-            'login' => $login,
-            'email' => $email,
-            'password' => $password,
-            'confirm_password' => $passwordConfirmation,
-            'profile_picture' => $profilePicture
-        ];*/
         $validationRules = [
             'login' => 'required|string|min:3|max:20|unique:login',
             'email' => 'required|email|unique:email',
-            'password' => 'required|min:8|max:20|current_password:login',
+            'password' => 'required|min:8|max:20|confirmed:confirm_password',
             'confirm_password' => 'required|min:8|max:20',
+            'profile_picture' => 'image|size:0-300'
         ];
         $dataToValidate = [
             'login' => $login,
             'email' => $email,
             'password' => $password,
             'confirm_password' => $passwordConfirmation,
+            'profile_picture' => $uploadedFile
         ];
         $errors = $this->validator->validate($validationRules, $dataToValidate);
         if (!empty($errors)) {
-            foreach ($errors as $field => $error) {
+            $flattenedErrors = array_reduce($errors, 'array_merge', []);
+            foreach ($flattenedErrors as $error) {
                 $this->flash->set('error', $error);
             }
-            header('Location: /users/showRegistrationForm'); //!!! Разобраться, на какую именно форму перенаправлять: registration или creation
+            header('Location: /users/new');
             exit();
         }
 
         $hashedPassword = hash('sha256', $password);
+        $uploadDir = __DIR__ . '/../assets/avatars/';
+        $profilePicture = $uploadDir . basename($uploadedFile['name']);
         $this->user->store([
             'login' => $login,
             'email' => $email,
