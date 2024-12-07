@@ -15,7 +15,6 @@ class Validator
         $this->model = $model;
     }
 
-    // Попытка сделать, "как в Laravel"
     public function validate(array $validationRules, array $data): array
     {
         $errors = [];
@@ -23,7 +22,6 @@ class Validator
             $value = $data[$field] ?? null;
             $rulesArray = explode('|', $rules);
             foreach ($rulesArray as $rule) {
-                // Проверка на наличие параметров в правиле
                 if (preg_match('/^(\w+)(?::(.+))?$/', $rule, $matches)) {
                     $ruleName = $matches[1];
                     $ruleParam = $matches[2] ?? null;
@@ -41,7 +39,7 @@ class Validator
                             break;
                         case 'email':
                             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                                $errors[$field][] = "Неправильный формат email.";
+                                $errors[$field][] = "Неправильный формат введённого email.";
                             }
                             break;
                         case 'unique':
@@ -62,9 +60,25 @@ class Validator
                                 $errors[$field][] = "Поле {$field} должно содержать максимум {$ruleParam} символов.";
                             }
                             break;
+                        case 'file':
+                            if ($ruleParam) {
+                                list($minSize, $maxSize) = array_map('intval', explode('-', $ruleParam));
+                                if (!is_array($value) || $value['error'] !== UPLOAD_ERR_OK) {
+                                    if ($minSize > 0) {
+                                        $errors[$field][] = "Файл {$field} не был загружен на сервер.";
+                                    }
+                                    break;
+                                }
+                                $fileSize = filesize($value['tmp_name']);
+                                if ($fileSize < $minSize * 1024) {
+                                    $errors[$field][] = "Размер файла {$field} должен быть не менее {$minSize} КБ.";
+                                } elseif ($fileSize > $maxSize * 1024) {
+                                    $errors[$field][] = "Размер файла {$field} не должен превышать {$maxSize} КБ.";
+                                }
+                            }
+                            break;
                         case 'image':
                             if (!is_array($value) || $value['error'] !== UPLOAD_ERR_OK) {
-                                $errors[$field][] = "Файл изображения не был загружен.";
                                 break;
                             }
                             $fileType = mime_content_type($value['tmp_name']);
@@ -81,42 +95,17 @@ class Validator
                                     if ($storedHashedPassword !== $hashedPassword) {
                                         $errors[$field][] = "Пользователь с такой комбинацией логин/пароль не существует.";
                                     }
-                                } else {
-                                    $errors[$field][] = "Логин не указан."; // только для дебага
                                 }
                             }
                             break;
-                        case 'size':
+                        case 'confirmed':
                             if ($ruleParam) {
-                                list($minSize, $maxSize) = array_map('intval', explode('-', $ruleParam));
-
-                                if ($value && is_array($value) && isset($value['tmp_name'])) {
-                                    $fileSize = filesize($value['tmp_name']);
-
-                                    if ($fileSize < $minSize * 1024) {
-                                        if ($minSize > 0) {
-                                            $errors[$field][] = "Размер файла {$field} должен быть не менее {$minSize} КБ.";
-                                        }
-                                    } elseif ($fileSize > $maxSize * 1024) {
-                                        $errors[$field][] = "Размер файла {$field} не должен превышать {$maxSize} КБ.";
-                                    }
-                                } elseif ($minSize === 0) {
-                                    break;
-                                } else {
-                                    $errors[$field][] = "Файл не загружен.";
+                                $confirmationValue = $data[$ruleParam] ?? null;
+                                if ($value !== $confirmationValue) {
+                                    $errors[$field][] = "Поле {$field} не совпадает с полем {$ruleParam}.";
                                 }
                             }
                             break;
-                            case 'confirmed':
-                                if ($ruleParam) {
-                                    $confirmationValue = $data[$ruleParam] ?? null;
-                                    if ($value !== $confirmationValue) {
-                                        $errors[$field][] = "Поле {$field} не совпадает с полем {$ruleParam}.";
-                                    }
-                                } else {
-                                    $errors[$field][] = "Поле для подтверждения не указано."; // только для дебага
-                                }
-                                break;
                     }
                 }
             }
