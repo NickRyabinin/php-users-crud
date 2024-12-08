@@ -107,7 +107,6 @@ class UserController
 
     public function store()
     {
-        // Получаем из Request данные, введённые в форму
         $login = $this->request->getFormData('username');
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
@@ -116,25 +115,13 @@ class UserController
         $isActiveValue = $this->request->getFormData('is_active') ?? true;
         $isActive = $isActiveValue ? 'true' : 'false';
         $uploadedFile = $this->request->getFile('profile_picture');
-        /*$profilePicture = '';
-        if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../assets/avatars/';
-            $profilePicture = $uploadDir . basename($uploadedFile['name']);
-
-            // Перемещаем загруженный файл в нужную директорию
-            if (move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
-                // Файл ОК
-            } else {
-                // Ошибка при загрузке файла
-            }
-        }*/
 
         $validationRules = [
             'login' => 'required|string|min:3|max:20|unique:login',
             'email' => 'required|email|unique:email',
             'password' => 'required|min:8|max:20|confirmed:confirm_password',
             'confirm_password' => 'required|min:8|max:20',
-            'profile_picture' => 'image|size:0-300'
+            'profile_picture' => 'file:0-300|image'
         ];
         $dataToValidate = [
             'login' => $login,
@@ -153,21 +140,30 @@ class UserController
             exit();
         }
 
+        $profilePictureRelativeUrl = "";
+        if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
+            $serverUploadDir = __DIR__ . '/../assets/avatars/';
+            $profilePicture = $serverUploadDir . basename($uploadedFile['name']);
+            if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
+                $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
+                header('Location: /users/new');
+                exit();
+            }
+            $profilePictureRelativeUrl = '/assets/avatars/' . basename($uploadedFile['name']);
+        }
+
         $hashedPassword = hash('sha256', $password);
-        $uploadDir = __DIR__ . '/../assets/avatars/';
-        $profilePicture = $uploadDir . basename($uploadedFile['name']);
         $this->user->store([
             'login' => $login,
             'email' => $email,
             'hashed_password' => $hashedPassword,
-            'profile_picture' => $profilePicture,
+            'profile_picture' => $profilePictureRelativeUrl,
             'is_active' => $isActive,
             'role' => $role,
         ]);
-        $flashMessage = "User created successfully";
+        $flashMessage = "Пользователь успешно создан";
         $this->flash->set('success', $flashMessage);
 
-        // Редирект на маршрут  GET /users
         header('Location: /users');
         exit();
     }
@@ -276,6 +272,7 @@ class UserController
             $flashMessage = "User deleted successfully";
             $this->flash->set('success', $flashMessage);
             $this->user->destroy($id);
+            // !!! Надо удалить загруженный на сервер файл аватара, если такой файл существует
         }
 
         header('Location: /users');
