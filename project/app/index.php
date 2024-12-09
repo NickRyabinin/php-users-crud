@@ -28,6 +28,7 @@ use src\UserController;
 use src\User;
 use src\View;
 use src\Request;
+use src\Response;
 use src\Validator;
 
 session_start();
@@ -47,11 +48,13 @@ $router = new Router($request);
 $view = new View(TEMPLATES_PATH);
 $captcha = new Captcha();
 $flash = new Flash();
+$response = new Response($flash);
 $user = new User($pdo);
 $validator = new Validator($user); // Для универсальности лучше создать и внедрять родительскую $model
 $userController = new UserController(
     [
         'request' => $request,
+        'response' => $response,
         'user' => $user,
         'view' => $view,
         'captcha' => $captcha,
