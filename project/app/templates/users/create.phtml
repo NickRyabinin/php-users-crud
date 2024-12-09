@@ -3,7 +3,7 @@
   <form method="post" action="/users" enctype="multipart/form-data">
     <div class="form-group">
       <label for="username">Логин*</label>
-      <input type="text" id="username" name="username" placeholder="3-20 символов" required>
+      <input type="text" id="username" name="username" placeholder="3-20 символов" required value="<?= htmlspecialchars($flash['login'][0] ?? '') ?>">
     </div>
     <div class="form-group">
       <label for="profile_picture">Аватар (0 - 300 кБ jpg/jpeg/png)</label>
@@ -11,7 +11,7 @@
     </div>
     <div class="form-group">
       <label for="email">Емайл*</label>
-      <input type="email" id="email" name="email" required>
+      <input type="email" id="email" name="email" required value="<?= htmlspecialchars($flash['email'][0] ?? '') ?>">
     </div>
     <div class="form-group">
       <label for="password">Пароль*</label>
@@ -24,13 +24,13 @@
     <div class="form-group">
       <label for="role">Admin или user</label>
       <select id="role" name="role">
-        <option value="user" selected>user</option>
-        <option value="admin">admin</option>
+        <option value="user" <?= (isset($flash['role'][0]) && $flash['role'][0] === 'user') ? 'selected' : '' ?>>user</option>
+        <option value="admin" <?= (isset($flash['role'][0]) && $flash['role'][0] === 'admin') ? 'selected' : '' ?>>admin</option>
       </select>
     </div>
     <div class="form-group">
       <label for="is_active">Разрешена активность?</label>
-      <input type="checkbox" id="is_active" name="is_active" value="true" checked>
+      <input type="checkbox" id="is_active" name="is_active" value="true" <?= (isset($flash['is_active'][0]) && $flash['is_active'][0] === 'true') ? 'checked' : '' ?>>
     </div>
     <button type="submit">Создать</button>
   </form>
