@@ -11,6 +11,7 @@ namespace src;
 class UserController
 {
     private $request;
+    private $response;
     private $user;
     private $view;
     private $captcha;
@@ -20,6 +21,7 @@ class UserController
     public function __construct(array $params)
     {
         $this->request = $params['request'];
+        $this->response = $params['response'];
         $this->user = $params['user'];
         $this->view = $params['view'];
         $this->captcha = $params['captcha'];
@@ -121,14 +123,18 @@ class UserController
             'email' => 'required|email|unique:email',
             'password' => 'required|min:8|max:20|confirmed:confirm_password',
             'confirm_password' => 'required|min:8|max:20',
-            'profile_picture' => 'file:0-300|image'
+            'profile_picture' => 'file:0-300|image',
+            'is_active' => '',
+            'role' => '',
         ];
         $dataToValidate = [
             'login' => $login,
             'email' => $email,
             'password' => $password,
             'confirm_password' => $passwordConfirmation,
-            'profile_picture' => $uploadedFile
+            'profile_picture' => $uploadedFile,
+            'is_active' => $isActive,
+            'role' => $role,
         ];
         $errors = $this->validator->validate($validationRules, $dataToValidate);
         if (!empty($errors)) {
@@ -136,8 +142,7 @@ class UserController
             foreach ($flattenedErrors as $error) {
                 $this->flash->set('error', $error);
             }
-            header('Location: /users/new');
-            exit();
+            $this->response->redirect('/users/new', $dataToValidate);
         }
 
         $profilePictureRelativeUrl = "";
@@ -146,8 +151,7 @@ class UserController
             $profilePicture = $serverUploadDir . basename($uploadedFile['name']);
             if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
                 $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
-                header('Location: /users/new');
-                exit();
+                $this->response->redirect('/users/new', $dataToValidate);
             }
             $profilePictureRelativeUrl = '/assets/avatars/' . basename($uploadedFile['name']);
         }
@@ -163,9 +167,7 @@ class UserController
         ]);
         $flashMessage = "Пользователь успешно создан";
         $this->flash->set('success', $flashMessage);
-
-        header('Location: /users');
-        exit();
+        $this->response->redirect('/users', []);
     }
 
     public function index()
