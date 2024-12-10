@@ -119,7 +119,7 @@ select {
 }
 
 input::placeholder {
-  color: black;
+  color: lightblue;
 }
 
 .captcha-group input {
