@@ -18,6 +18,7 @@ class PageController
 
     public function read(): void
     {
-        $this->view->render('pages/home', [], 'О приложении');
+        $pageTitle = 'О приложении';
+        $this->view->render('pages/home', ['title' => $pageTitle]);
     }
 }

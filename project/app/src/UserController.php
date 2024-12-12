@@ -37,7 +37,14 @@ class UserController
     public function showRegistrationForm()
     {
         $flashMessages = $this->flash->get();
-        $this->view->render('auth/register', ['flash' => $flashMessages], 'Регистрация пользователя');
+        $pageTitle = 'Регистрация пользователя';
+        $this->view->render(
+            'auth/register',
+            [
+                'flash' => $flashMessages,
+                'title' => $pageTitle,
+            ]
+        );
     }
 
     public function register()
@@ -60,7 +67,14 @@ class UserController
     public function showLoginForm()
     {
         $flashMessages = $this->flash->get();
-        $this->view->render('auth/login', ['flash' => $flashMessages], 'Вход в приложение');
+        $pageTitle = 'Вход в приложение';
+        $this->view->render(
+            'auth/login',
+            [
+                'flash' => $flashMessages,
+                'title' => $pageTitle,
+            ]
+        );
     }
 
     public function login()
@@ -104,7 +118,14 @@ class UserController
     public function create(): void
     {
         $flashMessages = $this->flash->get();
-        $this->view->render('users/create', ['flash' => $flashMessages], 'Создание пользователя');
+        $pageTitle = 'Создание пользователя';
+        $this->view->render(
+            'users/create',
+            [
+                'flash' => $flashMessages,
+                'title' => $pageTitle,
+            ]
+        );
     }
 
     public function store()
@@ -187,16 +208,18 @@ class UserController
         $limit = $usersData['limit'];
         $totalPages = ceil($totalRecords / $limit);
         $flashMessages = $this->flash->get();
+        $pageTitle = 'Список пользователей';
 
         $data = [
             'flash' => $flashMessages,
             'users' => $users,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
-            'totalRecords' => $totalRecords
+            'totalRecords' => $totalRecords,
+            'title' => $pageTitle,
         ];
 
-        $this->view->render('users/index', $data, 'Список пользователей');
+        $this->view->render('users/index', $data);
     }
 
     public function show()
@@ -204,12 +227,15 @@ class UserController
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
         $flashMessages = $this->flash->get();
+        $pageTitle = 'Профиль пользователя';
+
         $data = [
             'flash' => $flashMessages,
-            'user' => $user
+            'user' => $user,
+            'title' => $pageTitle,
         ];
 
-        $this->view->render('users/show', $data, 'Профиль пользователя');
+        $this->view->render('users/show', $data);
     }
 
     public function edit()
@@ -217,12 +243,15 @@ class UserController
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
         $flashMessages = $this->flash->get();
+        $pageTitle = 'Изменение пользователя';
+
         $data = [
             'flash' => $flashMessages,
-            'user' => $user
+            'user' => $user,
+            'title' => $pageTitle,
         ];
 
-        $this->view->render('users/edit', $data, 'Изменение пользователя');
+        $this->view->render('users/edit', $data);
     }
 
     public function update(): void
