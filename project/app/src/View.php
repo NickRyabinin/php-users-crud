@@ -16,29 +16,27 @@ class View
         $this->templatesPath = $templatesPath;
     }
 
-    public function render(string $templateName, array $data = []): void
+    public function render(string $templateName, array $data = [], int $httpStatusCode = 200): void
     {
-        // Устанавливаем заголовки
         header('Content-Type: text/html; charset=UTF-8');
         header('Access-Control-Allow-Origin: *');
 
-        // Извлекаем параметры в переменные!
         extract($data);
 
-        // Подключаем шаблоны в макет
         $contentTemplate = $this->templatesPath . $templateName . '.phtml';
 
         if (file_exists($contentTemplate)) {
-            http_response_code(200);
+            http_response_code($httpStatusCode);
+            // Шаблон выводим в буфер, а содержимое буфера записываем в $content для вставки в макет
             ob_start();
             include $contentTemplate;
-            $content = ob_get_clean(); // Записываем содержимое буфера в $content для вставки в макет
+            $content = ob_get_clean();
         } else {
             http_response_code(500);
             echo "Не найден шаблон для отображения";
             return;
         }
-        // Выводим макет
+
         include $this->templatesPath . 'layout.phtml';
     }
 }
