@@ -117,6 +117,12 @@ class UserController
 
     public function create(): void
     {
+        $statusCode = $this->flash->get('status_code');
+        if ($statusCode === []) {
+            $httpStatusCode = 200;
+        } else {
+            $httpStatusCode = $statusCode[0];
+        }
         $flashMessages = $this->flash->get();
         $pageTitle = 'Создание пользователя';
         $this->view->render(
@@ -124,8 +130,8 @@ class UserController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
-            ]
-        );
+            ],
+        $httpStatusCode);
     }
 
     public function store()
@@ -163,6 +169,7 @@ class UserController
             foreach ($flattenedErrors as $error) {
                 $this->flash->set('error', $error);
             }
+            $this->flash->set('status_code', '422');
             $this->response->redirect('/users/new', $dataToValidate);
         }
 
@@ -174,6 +181,7 @@ class UserController
             $profilePicture = $serverUploadDir . $uniqueFileName;
             if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
                 $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
+                $this->flash->set('status_code', '422');
                 $this->response->redirect('/users/new', $dataToValidate);
             }
             $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
@@ -193,9 +201,11 @@ class UserController
             )
         ) {
             $this->flash->set('success', "Пользователь успешно создан");
+            $this->flash->set('status_code', '201');
             $this->response->redirect('/users');
         }
         $this->flash->set('error', "Что-то пошло не так ...");
+        $this->flash->set('status_code', '422');
         $this->response->redirect('/users/new', $dataToValidate);
     }
 
@@ -207,8 +217,15 @@ class UserController
         $totalRecords = $usersData['total'];
         $limit = $usersData['limit'];
         $totalPages = ceil($totalRecords / $limit);
-        $flashMessages = $this->flash->get();
         $pageTitle = 'Список пользователей';
+
+        $statusCode = $this->flash->get('status_code');
+        if ($statusCode === []) {
+            $httpStatusCode = 200;
+        } else {
+            $httpStatusCode = $statusCode[0];
+        }
+        $flashMessages = $this->flash->get();
 
         $data = [
             'flash' => $flashMessages,
@@ -219,7 +236,7 @@ class UserController
             'title' => $pageTitle,
         ];
 
-        $this->view->render('users/index', $data);
+        $this->view->render('users/index', $data, $httpStatusCode);
     }
 
     public function show()
