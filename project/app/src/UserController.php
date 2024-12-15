@@ -131,7 +131,8 @@ class UserController
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
             ],
-        $httpStatusCode);
+            $httpStatusCode
+        );
     }
 
     public function store()
@@ -259,6 +260,12 @@ class UserController
     {
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
+        $statusCode = $this->flash->get('status_code');
+        if ($statusCode === []) {
+            $httpStatusCode = 200;
+        } else {
+            $httpStatusCode = $statusCode[0];
+        }
         $flashMessages = $this->flash->get();
         $pageTitle = 'Изменение пользователя';
 
@@ -268,7 +275,7 @@ class UserController
             'title' => $pageTitle,
         ];
 
-        $this->view->render('users/edit', $data);
+        $this->view->render('users/edit', $data, $httpStatusCode);
     }
 
     public function update(): void
@@ -281,58 +288,78 @@ class UserController
         $passwordConfirmation = $this->request->getFormData('confirm_password');
         $role = $this->request->getFormData('role');
         $isActive = $this->request->getFormData('is_active') ? 'true' : 'false';
-
         $uploadedFile = $this->request->getFile('profile_picture');
-        $profilePicture = '';
 
-        // Тут надо добавить валидацию данных и вывод флэша об ошибках
-        // разобраться с паролем
-        // проверить размер загруженного аватара
-        /*$profilePictureRelativeUrl = "";
+        $validationRules = [
+            'login' => 'string|min:3|max:20|unique:login',
+            'email' => 'email|unique:email',
+            'password' => 'min:8|max:20|confirmed:confirm_password',
+            'confirm_password' => 'min:8|max:20',
+            'profile_picture' => 'file:0-300|image',
+            'is_active' => '',
+            'role' => '',
+        ];
+        $dataToValidate = [
+            'login' => $login,
+            'email' => $email,
+            'password' => $password,
+            'confirm_password' => $passwordConfirmation,
+            'profile_picture' => $uploadedFile,
+            'is_active' => $isActive,
+            'role' => $role,
+        ];
+        $errors = $this->validator->validate($validationRules, $dataToValidate);
+        if (!empty($errors)) {
+            $flattenedErrors = array_reduce($errors, 'array_merge', []);
+            foreach ($flattenedErrors as $error) {
+                $this->flash->set('error', $error);
+            }
+            $this->flash->set('status_code', '422');
+            $this->response->redirect("/users/{$id}/edit", $dataToValidate);
+        }
+
+        $profilePictureRelativeUrl = "";
         if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
             $serverUploadDir = __DIR__ . '/../assets/avatars/';
             $relativeUploadDir = '/assets/avatars/';
             $uniqueFileName = uniqid() . '_' . basename($uploadedFile['name']);
             $profilePicture = $serverUploadDir . $uniqueFileName;
-            if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
-                $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
-                $this->response->redirect('/users/new', $dataToValidate);
-            }
-            $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
-        }*/
 
-        if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../assets/avatars/';
-            $profilePicture = $uploadDir . basename($uploadedFile['name']);
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
 
             // Перемещаем загруженный файл в нужную директорию
-            if (move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
-                if ($currentProfilePicture && file_exists($uploadDir . basename($currentProfilePicture))) {
-                    unlink($uploadDir . basename($currentProfilePicture));
-                }
-            } else {
-                // Ошибка при загрузке файла
-                $profilePicture = $currentProfilePicture;
+            if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
+                $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
+                $this->flash->set('status_code', '422');
+                $this->response->redirect("/users/{$id}/edit", $dataToValidate);
             }
+            if ($currentProfilePicture && file_exists($serverUploadDir . basename($currentProfilePicture))) {
+                unlink($serverUploadDir . basename($currentProfilePicture));
+            }
+            $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
         }
 
         $hashedPassword = hash('sha256', $password);
-        $this->user->update($id, [
-            'login' => $login,
-            'email' => $email,
-            'hashed_password' => $hashedPassword,
-            'profile_picture' => $profilePicture,
-            'is_active' => $isActive,
-            'role' => $role,
-        ]);
-
-        $flashMessage = "User updated successfully";
-        $this->flash->set('success', $flashMessage);
-
-        // Редирект на маршрут  GET /users
-        header('Location: /users');
-        exit();
+        if (
+            $this->user->update(
+                $id,
+                [
+                    'login' => $login,
+                    'email' => $email,
+                    'hashed_password' => $hashedPassword,
+                    'profile_picture' => $profilePictureRelativeUrl,
+                    'is_active' => $isActive,
+                    'role' => $role,
+                ]
+            )
+        ) {
+            $this->flash->set('success', "Пользователь успешно изменён");
+            $this->flash->set('status_code', '303');
+            $this->response->redirect('/users');
+        }
+        $this->flash->set('error', "Что-то пошло не так ...");
+        $this->flash->set('status_code', '422');
+        $this->response->redirect("/users/{$id}/edit", $dataToValidate);
     }
 
     public function delete(): void
@@ -341,13 +368,13 @@ class UserController
         $deleteConfirmation = $this->request->getFormData('delete_confirmation');
 
         if ($id && $deleteConfirmation) {
-            $profilePicturePath = $this->user->getValue('user', 'profile_picture', 'id', $id);
+            $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
             $serverUploadDir = __DIR__ . '/../assets/avatars/';
 
             if ($this->user->destroy($id)) {
                 $this->flash->set('success', "User deleted successfully");
-                if ($profilePicturePath && file_exists($serverUploadDir . basename($profilePicturePath))) {
-                    unlink($serverUploadDir . basename($profilePicturePath));
+                if ($currentProfilePicture && file_exists($serverUploadDir . basename($currentProfilePicture))) {
+                    unlink($serverUploadDir . basename($currentProfilePicture));
                 }
                 $this->response->redirect('/users');
             }
