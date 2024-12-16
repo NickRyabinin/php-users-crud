@@ -4,26 +4,26 @@
     <form method="post" action="/users/<?= $user['id'] ?>" enctype="multipart/form-data">
       <input type="hidden" name="http_method" value="PUT">
       <div class="form-group">
-        <label for="username">Логин</label>
+        <label for="username">Логин (3-20 символов)</label>
         <input type="text" id="username" name="username" value="<?= htmlspecialchars($user['login']) ?>">
       </div>
       <div class="form-group">
-        <label for="profile_picture">Аватар</label>
+        <label for="profile_picture">Аватар (0 - 300 кБ jpg/jpeg/png)</label>
         <input type="file" id="profile_picture" name="profile_picture" accept="image/png, image/jpeg" />
         <?php if (!empty($user['profile_picture'])): ?>
           <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар">
         <?php endif; ?>
       </div>
       <div class="form-group">
-        <label for="email">Емайл</label>
+        <label for="email">Емайл (в формате x@y.z)</label>
         <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>">
       </div>
       <div class="form-group">
-        <label for="password">Пароль</label>
+        <label for="password">Пароль (8-20 символов)</label>
         <input type="password" id="password" name="password">
       </div>
       <div class="form-group">
-        <label for="confirm-password">Подтверждение пароля</label>
+        <label for="confirm-password">Подтверждение пароля (8-20 символов)</label>
         <input type="password" id="confirm-password" name="confirm_password">
       </div>
       <div class="form-group">
