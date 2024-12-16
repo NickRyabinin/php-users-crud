@@ -280,8 +280,6 @@ class UserController
 
     public function update(): void
     {
-        $id = $this->request->getResourceId();
-
         $login = $this->request->getFormData('username');
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
@@ -290,24 +288,34 @@ class UserController
         $isActive = $this->request->getFormData('is_active') ? 'true' : 'false';
         $uploadedFile = $this->request->getFile('profile_picture');
 
-        $validationRules = [
-            'login' => 'string|min:3|max:20|unique:login',
-            'email' => 'email|unique:email',
-            'password' => 'min:8|max:20|confirmed:confirm_password',
-            'confirm_password' => 'min:8|max:20',
-            'profile_picture' => 'file:0-300|image',
-            'is_active' => '',
-            'role' => '',
-        ];
-        $dataToValidate = [
-            'login' => $login,
-            'email' => $email,
-            'password' => $password,
-            'confirm_password' => $passwordConfirmation,
-            'profile_picture' => $uploadedFile,
-            'is_active' => $isActive,
-            'role' => $role,
-        ];
+        $id = $this->request->getResourceId();
+        $currentUser = $this->user->show($id);
+
+        $validationRules = [];
+        $dataToValidate = [];
+
+        // !!! Валидировать будем только изменённые поля
+        if ($login !== $currentUser['login']) {
+            $validationRules['login'] = 'string|min:3|max:20|unique:login';
+            $dataToValidate['login'] = $login;
+        }
+        if ($email !== $currentUser['email']) {
+            $validationRules['email'] = 'email|unique:email';
+            $dataToValidate['email'] = $email;
+        }
+        if (!empty($password) || !empty($passwordConfirmation)) {
+            $validationRules['password'] = 'min:8|max:20|confirmed:confirm_password';
+            $validationRules['confirm_password'] = 'min:8|max:20';
+            $dataToValidate['password'] = $password;
+            $dataToValidate['confirm_password'] = $passwordConfirmation;
+        }
+        if ($uploadedFile) {
+            $validationRules['profile_picture'] = 'file:0-300|image';
+            $dataToValidate['profile_picture'] = $uploadedFile;
+        }
+        $dataToValidate['is_active'] = $isActive;
+        $dataToValidate['role'] = $role;
+
         $errors = $this->validator->validate($validationRules, $dataToValidate);
         if (!empty($errors)) {
             $flattenedErrors = array_reduce($errors, 'array_merge', []);
@@ -324,10 +332,8 @@ class UserController
             $relativeUploadDir = '/assets/avatars/';
             $uniqueFileName = uniqid() . '_' . basename($uploadedFile['name']);
             $profilePicture = $serverUploadDir . $uniqueFileName;
-
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
 
-            // Перемещаем загруженный файл в нужную директорию
             if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
                 $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
                 $this->flash->set('status_code', '422');
@@ -339,15 +345,20 @@ class UserController
             $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
         }
 
-        $hashedPassword = hash('sha256', $password);
+        if (!empty($password)) {
+            $hashedPassword = hash('sha256', $password);
+        } else {
+            $hashedPassword = $currentUser['hashed_password']; // Оставляем старый хеш
+        }
+
         if (
             $this->user->update(
                 $id,
                 [
-                    'login' => $login,
-                    'email' => $email,
+                    'login' => $login ?? $currentUser['login'],
+                    'email' => $email ?? $currentUser['email'],
                     'hashed_password' => $hashedPassword,
-                    'profile_picture' => $profilePictureRelativeUrl,
+                    'profile_picture' => $profilePictureRelativeUrl ?: $currentUser['profile_picture'],
                     'is_active' => $isActive,
                     'role' => $role,
                 ]
@@ -357,6 +368,7 @@ class UserController
             $this->flash->set('status_code', '303');
             $this->response->redirect('/users');
         }
+
         $this->flash->set('error', "Что-то пошло не так ...");
         $this->flash->set('status_code', '422');
         $this->response->redirect("/users/{$id}/edit", $dataToValidate);
