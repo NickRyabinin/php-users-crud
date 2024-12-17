@@ -52,16 +52,70 @@ class UserController
         $captchaText = $this->captcha->getCaptchaText();
         $this->captcha->clearCaptchaText();
         $enteredCaptchaText = $this->request->getFormData('captcha_input');
-        if ($captchaText === $enteredCaptchaText) {
-            $flashMessage = "Registration successful";
-            $this->flash->set('success', $flashMessage);
-            $this->store();
-        }
-        $flashMessage = "Wrong captcha text";
-        $this->flash->set('error', $flashMessage);
 
-        header('Location: /users/register');
-        exit();
+        $login = $this->request->getFormData('username');
+        $email = $this->request->getFormData('email');
+        $password = $this->request->getFormData('password');
+        $passwordConfirmation = $this->request->getFormData('confirm_password');
+        $role = $this->request->getFormData('role') ?? 'user';
+        $isActiveValue = $this->request->getFormData('is_active') ?? true;
+        $isActive = $isActiveValue ? 'true' : 'false';
+        $uploadedFile = $this->request->getFile('profile_picture');
+
+        $validationRules = [
+            'login' => 'required|string|min:3|max:20|unique:login',
+            'email' => 'required|email|unique:email',
+            'password' => 'required|min:8|max:20|confirmed:confirm_password',
+            'confirm_password' => 'required|min:8|max:20',
+            'profile_picture' => 'file:0-300|image',
+            'is_active' => '',
+            'role' => '',
+        ];
+        $dataToValidate = [
+            'login' => $login,
+            'email' => $email,
+            'password' => $password,
+            'confirm_password' => $passwordConfirmation,
+            'profile_picture' => $uploadedFile,
+            'is_active' => $isActive,
+            'role' => $role,
+        ];
+        $errors = $this->validator->validate($validationRules, $dataToValidate);
+        if (!empty($errors)) {
+            $flattenedErrors = array_reduce($errors, 'array_merge', []);
+            foreach ($flattenedErrors as $error) {
+                $this->flash->set('error', $error);
+            }
+            $this->flash->set('status_code', '422');
+            $this->response->redirect('/users/register', $dataToValidate);
+        }
+
+        if ($captchaText === $enteredCaptchaText) {
+            $hashedPassword = hash('sha256', $password);
+            if (
+                $this->user->store(
+                    [
+                        'login' => $login,
+                        'email' => $email,
+                        'hashed_password' => $hashedPassword,
+                        'profile_picture' => '',
+                        'is_active' => $isActive,
+                        'role' => $role,
+                    ]
+                )
+            ) {
+                $this->flash->set('success', 'Регистрация прошла успешно!');
+                $this->flash->set('status_code', '201');
+                $this->response->redirect('/users'); // ! Нужен переход на профиль пользователя
+            }
+            $this->flash->set('error', "Что-то пошло не так ...");
+            $this->flash->set('status_code', '422');
+            $this->response->redirect('/users/register', $dataToValidate);
+        }
+
+        $this->flash->set('error', 'Неправильный текст капчи');
+        $this->flash->set('status_code', '422');
+        $this->response->redirect('/users/register', $dataToValidate);
     }
 
     public function showLoginForm()
