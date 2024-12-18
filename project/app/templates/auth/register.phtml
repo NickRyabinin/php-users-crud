@@ -3,26 +3,26 @@
     <h2>Регистрация</h2>
     <form method="post" action="/users/register">
       <div class="form-group">
-        <label for="username">Логин</label>
-        <input type="text" id="username" name="username" required>
+        <label for="username">Логин*</label>
+        <input type="text" id="username" name="username" placeholder="3-20 символов" required value="<?= htmlspecialchars($flash['login'][0] ?? '') ?>">
       </div>
       <div class="form-group">
-        <label for="email">Емайл</label>
-        <input type="email" id="email" name="email" required>
+        <label for="email">Емайл*</label>
+        <input type="email" id="email" name="email" placeholder="x@y.z" required value="<?= htmlspecialchars($flash['email'][0] ?? '') ?>">
       </div>
       <div class="form-group">
-        <label for="password">Пароль</label>
-        <input type="password" id="password" name="password" required>
+        <label for="password">Пароль*</label>
+        <input type="password" id="password" name="password" placeholder="8-20 символов" required>
       </div>
       <div class="form-group">
-        <label for="confirm-password">Подтверждение пароля</label>
-        <input type="password" id="confirm-password" name="confirm_password" required>
+        <label for="confirm-password">Подтверждение пароля*</label>
+        <input type="password" id="confirm-password" name="confirm_password" placeholder="8-20 символов" required>
       </div>
       <div class="form-group">
-        <label for="captcha">Капча</label>
+        <label for="captcha">Капча*</label>
         <div class="captcha-group">
           <img src="/users/captcha" alt="Капча">
-          <input type="text" id="captcha" name="captcha_input" required>
+          <input type="text" id="captcha" name="captcha_input" placeholder="В точности как на картинке" required>
         </div>
       </div>
       <button type="submit">Зарегистрироваться</button>
