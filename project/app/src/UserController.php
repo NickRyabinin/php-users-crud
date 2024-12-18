@@ -106,7 +106,8 @@ class UserController
             ) {
                 $this->flash->set('success', 'Регистрация прошла успешно!');
                 $this->flash->set('status_code', '201');
-                $this->response->redirect('/users'); // ! Нужен переход на профиль пользователя
+
+                $this->response->redirect("/");
             }
             $this->flash->set('error', "Что-то пошло не так ...");
             $this->flash->set('status_code', '422');
@@ -136,6 +137,7 @@ class UserController
         $captchaText = $this->captcha->getCaptchaText();
         $this->captcha->clearCaptchaText();
         $enteredCaptchaText = $this->request->getFormData('captcha_input');
+
         if ($captchaText === $enteredCaptchaText) {
             $email = $this->request->getFormData('email');
             $password = $this->request->getFormData('password');
@@ -146,27 +148,23 @@ class UserController
                 $userHashedPassword = $user['hashed_password'];
                 if ($hashedPassword === $userHashedPassword) {
                     $this->user->updateLastLogin($email);
-                    // Выполняем логику входа
-                    $flashMessage = "Login OK";
-                    $this->flash->set('success', $flashMessage);
-                    header('Location: /users');
-                    // header('Location: /user/{:id}/profile'); // Надо перенаправить на профиль пользователя
-                    exit();
+
+                    // ? Сюда - обработку куки, сессию или токен
+
+                    $this->flash->set('success', "Аутентификация прошла успешно!");
+                    $this->response->redirect("/users/{$userId}");
                 }
-                $flashMessage = "Wrong password";
-                $this->flash->set('error', $flashMessage);
-                header('Location: /users/login');
-                exit();
+                $this->flash->set('error', "Пароль неправильный!");
+                $this->flash->set('status_code', '401');
+                $this->response->redirect("/users/login");
             }
-            $flashMessage = "Нет такого пользователя";
-            $this->flash->set('error', $flashMessage);
-            header('Location: /users/login');
-            exit();
+            $this->flash->set('error', "Email неправильный!");
+            $this->flash->set('status_code', '401');
+            $this->response->redirect("/users/login");
         }
-        $flashMessage = "Wrong captcha text";
-        $this->flash->set('error', $flashMessage);
-        header('Location: /users/login');
-        exit();
+        $this->flash->set('error', "Неправильный текст капчи");
+        $this->flash->set('status_code', '422');
+        $this->response->redirect("/users/login");
     }
 
     public function create(): void
