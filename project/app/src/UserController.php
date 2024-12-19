@@ -431,12 +431,13 @@ class UserController
         $id = $this->request->getResourceId();
         $deleteConfirmation = $this->request->getFormData('delete_confirmation');
 
+        // ! Маршруты перенаправлений будут зависеть от авторизации и аутентификации
         if ($id && $deleteConfirmation) {
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
             $serverUploadDir = __DIR__ . '/../assets/avatars/';
 
             if ($this->user->destroy($id)) {
-                $this->flash->set('success', "User deleted successfully");
+                $this->flash->set('success', "Пользователь успешно удалён!");
                 if ($currentProfilePicture && file_exists($serverUploadDir . basename($currentProfilePicture))) {
                     unlink($serverUploadDir . basename($currentProfilePicture));
                 }
@@ -445,5 +446,7 @@ class UserController
             $this->flash->set('error', "Что-то пошло не так ...");
             $this->response->redirect('/users');
         }
+        $this->flash->set('error', "Подтвердите действие, отметив чекбокс");
+        $this->response->redirect('/users');
     }
 }
