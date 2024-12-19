@@ -136,6 +136,9 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
+button a {
+  color: white;
+}
 
 button:hover {
   background-color: #0056b3;
@@ -148,6 +151,12 @@ button:hover {
 
 .actions-button-container {
   text-align: center;
+}
+
+.horizontal-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 img {
