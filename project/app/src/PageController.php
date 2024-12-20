@@ -9,16 +9,30 @@ namespace src;
 
 class PageController
 {
-    private $view;
+    private View $view;
+    private Flash $flash;
 
-    public function __construct(View $view)
+    public function __construct(array $params)
     {
-        $this->view = $view;
+        $this->view = $params['view'];
+        $this->flash = $params['flash'];
     }
 
     public function read(): void
     {
+        $statusCode = $this->flash->get('status_code');
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+
+        $flashMessages = $this->flash->get();
         $pageTitle = 'О приложении';
-        $this->view->render('pages/home', ['title' => $pageTitle]);
+
+        $this->view->render(
+            'pages/home',
+            [
+                'flash' => $flashMessages,
+                'title' => $pageTitle,
+            ],
+            $httpStatusCode
+        );
     }
 }
