@@ -10,13 +10,13 @@ namespace src;
 
 class UserController
 {
-    private $request;
-    private $response;
-    private $user;
-    private $view;
-    private $captcha;
-    private $flash;
-    private $validator;
+    private Request $request;
+    private Response $response;
+    private User $user;
+    private View $view;
+    private Captcha $captcha;
+    private Flash $flash;
+    private Validator $validator;
 
     public function __construct(array $params)
     {
@@ -29,13 +29,16 @@ class UserController
         $this->validator = $params['validator'];
     }
 
-    public function showCaptcha()
+    public function showCaptcha(): void
     {
         $this->captcha->createCaptcha();
     }
 
-    public function showRegistrationForm()
+    public function showRegistrationForm(): void
     {
+        $statusCode = $this->flash->get('status_code');
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+
         $flashMessages = $this->flash->get();
         $pageTitle = 'Регистрация пользователя';
         $this->view->render(
@@ -43,11 +46,12 @@ class UserController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
-            ]
+            ],
+            $httpStatusCode
         );
     }
 
-    public function register()
+    public function register(): void
     {
         $captchaText = $this->captcha->getCaptchaText();
         $this->captcha->clearCaptchaText();
@@ -119,8 +123,11 @@ class UserController
         $this->response->redirect('/users/register', $dataToValidate);
     }
 
-    public function showLoginForm()
+    public function showLoginForm(): void
     {
+        $statusCode = $this->flash->get('status_code');
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+
         $flashMessages = $this->flash->get();
         $pageTitle = 'Вход в приложение';
         $this->view->render(
@@ -128,11 +135,12 @@ class UserController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
-            ]
+            ],
+            $httpStatusCode
         );
     }
 
-    public function login()
+    public function login(): void
     {
         $captchaText = $this->captcha->getCaptchaText();
         $this->captcha->clearCaptchaText();
@@ -170,11 +178,8 @@ class UserController
     public function create(): void
     {
         $statusCode = $this->flash->get('status_code');
-        if ($statusCode === []) {
-            $httpStatusCode = 200;
-        } else {
-            $httpStatusCode = $statusCode[0];
-        }
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+
         $flashMessages = $this->flash->get();
         $pageTitle = 'Создание пользователя';
         $this->view->render(
@@ -187,7 +192,7 @@ class UserController
         );
     }
 
-    public function store()
+    public function store(): void
     {
         $login = $this->request->getFormData('username');
         $email = $this->request->getFormData('email');
@@ -262,7 +267,7 @@ class UserController
         $this->response->redirect('/users/new', $dataToValidate);
     }
 
-    public function index()
+    public function index(): void
     {
         $currentPage = $this->request->getPage();
         $usersData = $this->user->index($currentPage);
@@ -273,11 +278,8 @@ class UserController
         $pageTitle = 'Список пользователей';
 
         $statusCode = $this->flash->get('status_code');
-        if ($statusCode === []) {
-            $httpStatusCode = 200;
-        } else {
-            $httpStatusCode = $statusCode[0];
-        }
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+
         $flashMessages = $this->flash->get();
 
         $data = [
@@ -292,8 +294,11 @@ class UserController
         $this->view->render('users/index', $data, $httpStatusCode);
     }
 
-    public function show()
+    public function show(): void
     {
+        $statusCode = $this->flash->get('status_code');
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
         $flashMessages = $this->flash->get();
@@ -305,20 +310,17 @@ class UserController
             'title' => $pageTitle,
         ];
 
-        $this->view->render('users/show', $data);
+        $this->view->render('users/show', $data, $httpStatusCode);
     }
 
-    public function edit()
+    public function edit(): void
     {
+        $statusCode = $this->flash->get('status_code');
+        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+        $flashMessages = $this->flash->get();
+
         $id = $this->request->getResourceId();
         $user = $this->user->show($id);
-        $statusCode = $this->flash->get('status_code');
-        if ($statusCode === []) {
-            $httpStatusCode = 200;
-        } else {
-            $httpStatusCode = $statusCode[0];
-        }
-        $flashMessages = $this->flash->get();
         $pageTitle = 'Изменение пользователя';
 
         $data = [
@@ -397,11 +399,7 @@ class UserController
             $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
         }
 
-        if (!empty($password)) {
-            $hashedPassword = hash('sha256', $password);
-        } else {
-            $hashedPassword = $currentUser['hashed_password']; // Оставляем старый хеш
-        }
+        $hashedPassword = empty($password) ? $currentUser['hashed_password'] : hash('sha256', $password);
 
         if (
             $this->user->update(
