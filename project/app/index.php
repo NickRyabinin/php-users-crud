@@ -62,7 +62,12 @@ $userController = new UserController(
         'validator' => $validator
     ]
 );
-$pageController = new PageController($view);
+$pageController = new PageController(
+    [
+        'view' => $view,
+        'flash' => $flash,
+    ]
+);
 
 $controllers = [
     UserController::class => $userController,
