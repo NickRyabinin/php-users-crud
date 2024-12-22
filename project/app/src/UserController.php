@@ -17,6 +17,7 @@ class UserController
     private Captcha $captcha;
     private Flash $flash;
     private Validator $validator;
+    private Auth $auth;
 
     public function __construct(array $params)
     {
@@ -27,6 +28,7 @@ class UserController
         $this->captcha = $params['captcha'];
         $this->flash = $params['flash'];
         $this->validator = $params['validator'];
+        $this->auth = $params['auth'];
     }
 
     public function showCaptcha(): void
