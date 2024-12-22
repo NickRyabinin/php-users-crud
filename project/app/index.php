@@ -19,6 +19,7 @@ spl_autoload_register(function ($className) {
     }
 });
 
+use src\Auth;
 use src\Captcha;
 use src\Database;
 use src\Flash;
@@ -50,7 +51,8 @@ $captcha = new Captcha();
 $flash = new Flash();
 $response = new Response($flash);
 $user = new User($pdo);
-$validator = new Validator($user); // Для универсальности лучше создать и внедрять родительскую $model
+$validator = new Validator($user);
+$auth = new Auth();
 $userController = new UserController(
     [
         'request' => $request,
@@ -59,7 +61,8 @@ $userController = new UserController(
         'view' => $view,
         'captcha' => $captcha,
         'flash' => $flash,
-        'validator' => $validator
+        'validator' => $validator,
+        'auth' => $auth,
     ]
 );
 $pageController = new PageController(
