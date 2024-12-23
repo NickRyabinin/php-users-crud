@@ -15,13 +15,13 @@ class Auth
         unset($_SESSION['auth']);
     }
 
-    public function isAuth(int $userId): bool
+    public function isAuth(int $userId = 0): bool
     {
         return isset($_SESSION['auth']['user_id'])
             && $_SESSION['auth']['user_id'] === $userId;
     }
 
-    public function isAdmin(int $userId): bool
+    public function isAdmin(int $userId = 0): bool
     {
         return $this->isAuth($userId)
             && isset($_SESSION['auth']['user_role'])
