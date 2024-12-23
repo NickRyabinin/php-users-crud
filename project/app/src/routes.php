@@ -8,6 +8,7 @@ return [
         '/users/register' => [UserController::class, 'showRegistrationForm'],
         '/users/captcha' => [UserController::class, 'showCaptcha'],
         '/users/login' => [UserController::class, 'showLoginForm'],
+        '/users/logout' => [UserController::class, 'logout'],
         '/users/new' => [UserController::class, 'create'],
         '/users/{id}/edit' => [UserController::class, 'edit'],
         '/users/{id}' => [UserController::class, 'show'],
