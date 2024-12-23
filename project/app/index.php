@@ -69,6 +69,7 @@ $pageController = new PageController(
     [
         'view' => $view,
         'flash' => $flash,
+        'auth' => $auth,
     ]
 );
 
