@@ -11,11 +11,13 @@ class PageController
 {
     private View $view;
     private Flash $flash;
+    private Auth $auth;
 
     public function __construct(array $params)
     {
         $this->view = $params['view'];
         $this->flash = $params['flash'];
+        $this->auth = $params['auth'];
     }
 
     public function read(): void
@@ -31,6 +33,8 @@ class PageController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
+                'auth' => $this->auth->isAuth(),
+                'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
         );
