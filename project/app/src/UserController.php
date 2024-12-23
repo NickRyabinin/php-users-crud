@@ -48,6 +48,8 @@ class UserController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
+                'auth' => $this->auth->isAuth(),
+                'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
         );
@@ -137,6 +139,8 @@ class UserController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
+                'auth' => $this->auth->isAuth(),
+                'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
         );
@@ -157,9 +161,8 @@ class UserController
                 $user = $this->user->show($userId);
                 $userHashedPassword = $user['hashed_password'];
                 if ($hashedPassword === $userHashedPassword) {
+                    $this->auth->login($user);
                     $this->user->updateLastLogin($email);
-
-                    // ? Сюда - обработку куки, сессию или токен
 
                     $this->flash->set('success', "Аутентификация прошла успешно!");
                     $this->response->redirect("/users/{$userId}");
@@ -177,6 +180,12 @@ class UserController
         $this->response->redirect("/users/login");
     }
 
+    public function logout(): void
+    {
+        $this->auth->logout();
+        $this->response->redirect("/");
+    }
+
     public function create(): void
     {
         $statusCode = $this->flash->get('status_code');
@@ -189,6 +198,8 @@ class UserController
             [
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
+                'auth' => $this->auth->isAuth(),
+                'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
         );
@@ -291,6 +302,8 @@ class UserController
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords,
             'title' => $pageTitle,
+            'auth' => $this->auth->isAuth(),
+            'admin' => $this->auth->isAdmin(),
         ];
 
         $this->view->render('users/index', $data, $httpStatusCode);
@@ -310,6 +323,8 @@ class UserController
             'flash' => $flashMessages,
             'user' => $user,
             'title' => $pageTitle,
+            'auth' => $this->auth->isAuth(),
+            'admin' => $this->auth->isAdmin(),
         ];
 
         $this->view->render('users/show', $data, $httpStatusCode);
@@ -329,6 +344,8 @@ class UserController
             'flash' => $flashMessages,
             'user' => $user,
             'title' => $pageTitle,
+            'auth' => $this->auth->isAuth(),
+            'admin' => $this->auth->isAdmin(),
         ];
 
         $this->view->render('users/edit', $data, $httpStatusCode);
