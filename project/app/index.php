@@ -32,12 +32,19 @@ use src\Request;
 use src\Response;
 use src\Validator;
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 const ROUTES_PATH = __DIR__ . '/src/routes.php';
 const TEMPLATES_PATH = __DIR__ . '/templates/';
+
+const SERVER_UPLOAD_DIR = __DIR__ . '/assets/avatars/';
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_BLOCK_TIME = 15 * 60; // 15 минут в секундах
 
 // Подключение к БД и миграция
 $pdo = Database::get()->connect(ENV_FILE_PATH);
@@ -52,7 +59,7 @@ $flash = new Flash();
 $response = new Response($flash);
 $user = new User($pdo);
 $validator = new Validator($user);
-$auth = new Auth();
+$auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
 $userController = new UserController(
     [
         'request' => $request,
@@ -82,6 +89,7 @@ $controllers = [
 if (file_exists(ROUTES_PATH)) {
     $routes = require ROUTES_PATH;
 } else {
+    // надо заменить этот код на переброс к странице-заглушке
     http_response_code(500);
     echo json_encode(['message' => 'Файл маршрутов не найден.']);
     exit;
