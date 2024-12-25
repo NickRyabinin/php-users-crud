@@ -4,7 +4,7 @@
     <form method="post" action="/users/register">
       <div class="form-group">
         <label for="username">Логин*</label>
-        <input type="text" id="username" name="username" placeholder="3-20 символов" required value="<?= htmlspecialchars($flash['login'][0] ?? '') ?>">
+        <input type="text" id="username" name="username" placeholder="3 - 20 символов" required value="<?= htmlspecialchars($flash['login'][0] ?? '') ?>">
       </div>
       <div class="form-group">
         <label for="email">Емайл*</label>
@@ -12,11 +12,11 @@
       </div>
       <div class="form-group">
         <label for="password">Пароль*</label>
-        <input type="password" id="password" name="password" placeholder="8-20 символов" required>
+        <input type="password" id="password" name="password" placeholder="8 - 20 символов" required>
       </div>
       <div class="form-group">
         <label for="confirm-password">Подтверждение пароля*</label>
-        <input type="password" id="confirm-password" name="confirm_password" placeholder="8-20 символов" required>
+        <input type="password" id="confirm-password" name="confirm_password" placeholder="8 - 20 символов" required>
       </div>
       <div class="form-group">
         <label for="captcha">Капча*</label>
@@ -25,7 +25,10 @@
           <input type="text" id="captcha" name="captcha_input" placeholder="В точности как на картинке" required>
         </div>
       </div>
-      <button type="submit">Зарегистрироваться</button>
+      <div class="horizontal-container">
+        * - обязательные поля
+        <button type="submit">Зарегистрироваться</button>
+      </div>
     </form>
   </div>
 </div>
