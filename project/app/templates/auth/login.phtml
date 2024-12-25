@@ -3,21 +3,24 @@
     <h2>Вход</h2>
     <form method="post" action="/users/login">
       <div class="form-group">
-        <label for="email">Емайл</label>
-        <input type="email" id="email" name="email" required>
+        <label for="email">Емайл*</label>
+        <input type="email" id="email" name="email" placeholder="x@y.z" required>
       </div>
       <div class="form-group">
-        <label for="password">Пароль</label>
-        <input type="password" id="password" name="password" required>
+        <label for="password">Пароль*</label>
+        <input type="password" id="password" name="password" placeholder="8 - 20 символов" required>
       </div>
       <div class="form-group">
-        <label for="captcha">Капча</label>
+        <label for="captcha">Капча*</label>
         <div class="captcha-group">
           <img src="/users/captcha" alt="Капча">
-          <input type="text" id="captcha" name="captcha_input" required>
+          <input type="text" id="captcha" name="captcha_input" placeholder="В точности как на картинке" required>
         </div>
       </div>
-      <button type="submit">Войти</button>
+      <div class="horizontal-container">
+        * - обязательные поля
+        <button type="submit">Войти</button>
+      </div>
     </form>
   </div>
 </div>
