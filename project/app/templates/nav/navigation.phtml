@@ -1,16 +1,16 @@
 <ul class="menu">
   CRUD пользователей
-  <li><a href="/">Home</a></li>
-  
+  <li><a href="/">О приложении</a></li>
+
   <?php if ($admin): ?>
-    <li><a href="/users">Users</a></li>
+    <li><a href="/users">Пользователи</a></li>
   <?php endif; ?>
-  
-  <li><a href="/users/register">Register</a></li>
-  
+
   <?php if ($auth): ?>
-    <li><a href="/users/logout">Log Out</a></li>
+    <li><a href="/users/<?= $authId ?>">Профиль</a></li>
+    <li><a href="/users/logout">Выход</a></li>
   <?php else: ?>
-    <li><a href="/users/login">Log In</a></li>
+    <li><a href="/users/register">Регистрация</a></li>
+    <li><a href="/users/login">Вход</a></li>
   <?php endif; ?>
 </ul>
