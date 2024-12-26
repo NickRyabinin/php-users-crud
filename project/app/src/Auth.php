@@ -29,6 +29,11 @@ class Auth
         return isset($_SESSION['auth']['user_id']);
     }
 
+    public function getAuthId(): ?int
+    {
+        return $this->isAuth() ? $_SESSION['auth']['user_id'] : null;
+    }
+
     public function isAdmin(): bool
     {
         return $this->isAuth()
