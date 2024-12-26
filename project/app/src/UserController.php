@@ -49,6 +49,7 @@ class UserController
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
                 'auth' => $this->auth->isAuth(),
+                'authId' => $this->auth->getAuthId(),
                 'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
@@ -140,6 +141,7 @@ class UserController
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
                 'auth' => $this->auth->isAuth(),
+                'authId' => $this->auth->getAuthId(),
                 'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
@@ -214,6 +216,7 @@ class UserController
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
                 'auth' => $this->auth->isAuth(),
+                'authId' => $this->auth->getAuthId(),
                 'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
@@ -318,6 +321,7 @@ class UserController
             'totalRecords' => $totalRecords,
             'title' => $pageTitle,
             'auth' => $this->auth->isAuth(),
+            'authId' => $this->auth->getAuthId(),
             'admin' => $this->auth->isAdmin(),
         ];
 
@@ -339,6 +343,7 @@ class UserController
             'user' => $user,
             'title' => $pageTitle,
             'auth' => $this->auth->isAuth(),
+            'authId' => $this->auth->getAuthId(),
             'admin' => $this->auth->isAdmin(),
         ];
 
@@ -360,6 +365,7 @@ class UserController
             'user' => $user,
             'title' => $pageTitle,
             'auth' => $this->auth->isAuth(),
+            'authId' => $this->auth->getAuthId(),
             'admin' => $this->auth->isAdmin(),
         ];
 

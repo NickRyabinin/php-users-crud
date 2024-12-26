@@ -34,6 +34,7 @@ class PageController
                 'flash' => $flashMessages,
                 'title' => $pageTitle,
                 'auth' => $this->auth->isAuth(),
+                'authId' => $this->auth->getAuthId(),
                 'admin' => $this->auth->isAdmin(),
             ],
             $httpStatusCode
