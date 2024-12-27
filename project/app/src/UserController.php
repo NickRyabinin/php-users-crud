@@ -378,8 +378,9 @@ class UserController
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
         $passwordConfirmation = $this->request->getFormData('confirm_password');
-        $role = $this->request->getFormData('role');
-        $isActive = $this->request->getFormData('is_active') ? 'true' : 'false';
+        $role = $this->request->getFormData('role') ?? 'user';
+        $isActiveValue = $this->request->getFormData('is_active') ?? true;
+        $isActive = $isActiveValue ? 'true' : 'false';
         $uploadedFile = $this->request->getFile('profile_picture');
 
         $id = $this->request->getResourceId();
@@ -456,7 +457,7 @@ class UserController
         ) {
             $this->flash->set('success', "Пользователь успешно изменён");
             $this->flash->set('status_code', '303');
-            $this->response->redirect('/users');
+            $this->response->redirect("/users/{$id}");
         }
 
         $this->flash->set('error', "Что-то пошло не так ...");
