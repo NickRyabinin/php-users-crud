@@ -12,11 +12,13 @@
     <p>Статус: <?= $user['is_active'] ? 'Активен' : 'Неактивен' ?></p>
     <div class="horizontal-container">
       <button><a href="/users/<?= $user['id'] ?>/edit">Изменить</a></button>
-      <form action="/users/<?= $user['id'] ?>" method="post">
-        <input type="hidden" name="http_method" value="DELETE">
-        <button type="submit">Удалить</button>
-        <input type="checkbox" name="delete_confirmation" id="delete_confirmation" value="true">
-      </form>
+      <?php if ($admin): ?>
+        <form action="/users/<?= $user['id'] ?>" method="post">
+          <input type="hidden" name="http_method" value="DELETE">
+          <button type="submit">Удалить</button>
+          <input type="checkbox" name="delete_confirmation" id="delete_confirmation" value="true">
+        </form>
+      <?php endif; ?>
     </div>
   </div>
 </div>
