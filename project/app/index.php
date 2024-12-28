@@ -20,6 +20,7 @@ spl_autoload_register(function ($className) {
 });
 
 use src\Auth;
+use src\AuthMiddleware;
 use src\Captcha;
 use src\Database;
 use src\Flash;
@@ -51,15 +52,16 @@ $pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
 
 // Создание экземпляров сущностей
+$auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
+$authMiddleware = new AuthMiddleware($auth);
 $request = new Request();
-$router = new Router($request);
+$router = new Router($request, $authMiddleware);
 $view = new View(TEMPLATES_PATH);
 $captcha = new Captcha();
 $flash = new Flash();
 $response = new Response($flash);
 $user = new User($pdo);
 $validator = new Validator($user);
-$auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
 $userController = new UserController(
     [
         'request' => $request,
