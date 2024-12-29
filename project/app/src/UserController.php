@@ -334,6 +334,13 @@ class UserController
         $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
 
         $id = $this->request->getResourceId();
+
+        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
+            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
+            $this->flash->set('status_code', '403');
+            $this->response->redirect("/");
+        }
+
         $user = $this->user->show($id);
         $flashMessages = $this->flash->get();
         $pageTitle = 'Профиль пользователя';
@@ -357,6 +364,13 @@ class UserController
         $flashMessages = $this->flash->get();
 
         $id = $this->request->getResourceId();
+
+        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
+            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
+            $this->flash->set('status_code', '403');
+            $this->response->redirect("/");
+        }
+
         $user = $this->user->show($id);
         $pageTitle = 'Изменение пользователя';
 
@@ -384,6 +398,13 @@ class UserController
         $uploadedFile = $this->request->getFile('profile_picture');
 
         $id = $this->request->getResourceId();
+
+        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
+            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
+            $this->flash->set('status_code', '403');
+            $this->response->redirect("/");
+        }
+
         $currentUser = $this->user->show($id);
 
         $validationRules = [];
