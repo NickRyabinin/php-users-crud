@@ -52,14 +52,14 @@ $pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
 
 // Создание экземпляров сущностей
-$auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
-$authMiddleware = new AuthMiddleware($auth);
-$request = new Request();
-$router = new Router($request, $authMiddleware);
-$view = new View(TEMPLATES_PATH);
 $captcha = new Captcha();
 $flash = new Flash();
+$request = new Request();
 $response = new Response($flash);
+$auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
+$authMiddleware = new AuthMiddleware($auth, $response);
+$router = new Router($request, $authMiddleware);
+$view = new View(TEMPLATES_PATH);
 $user = new User($pdo);
 $validator = new Validator($user);
 $userController = new UserController(
