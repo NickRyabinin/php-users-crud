@@ -5,26 +5,47 @@
       <input type="hidden" name="http_method" value="PUT">
       <div class="form-group">
         <label for="username">Логин (3-20 символов)</label>
-        <input type="text" id="username" name="username" value="<?= htmlspecialchars($user['login']) ?>">
+        <input
+          type="text"
+          id="username"
+          name="username"
+          maxlength="20"
+          value="<?= htmlspecialchars($user['login']) ?>" />
       </div>
       <div class="form-group">
         <label for="profile_picture">Аватар (0 - 300 кБ jpg/jpeg/png)</label>
         <input type="file" id="profile_picture" name="profile_picture" accept="image/png, image/jpeg" />
-        <?php if (!empty($user['profile_picture'])): ?>
-          <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар">
-        <?php endif; ?>
+        <div class="horizontal-container">
+          <?php if (!empty($user['profile_picture'])): ?>
+            <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар">
+          <?php endif; ?>
+          <div id="file-error-message"></div>
+        </div>
       </div>
       <div class="form-group">
         <label for="email">Емайл (в формате x@y.z)</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>">
+        <input
+          type="email"
+          id="email"
+          name="email"
+          maxlength="50"
+          value="<?= htmlspecialchars($user['email']) ?>" />
       </div>
       <div class="form-group">
         <label for="password">Пароль (8-20 символов)</label>
-        <input type="password" id="password" name="password">
+        <input
+          type="password"
+          id="password"
+          name="password"
+          maxlength="20" />
       </div>
       <div class="form-group">
         <label for="confirm-password">Подтверждение пароля (8-20 символов)</label>
-        <input type="password" id="confirm-password" name="confirm_password">
+        <input
+          type="password"
+          id="confirm-password"
+          name="confirm_password"
+          maxlength="20" />
       </div>
       <?php if ($admin): ?>
         <div class="form-group">
