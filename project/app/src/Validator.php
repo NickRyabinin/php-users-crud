@@ -91,8 +91,7 @@ class Validator
                                 $login = $data[$ruleParam] ?? null;
                                 if ($login) {
                                     $storedHashedPassword = $this->model->getValue('user', 'hashed_password', 'login', $login);
-                                    $hashedPassword = hash('sha256', $value);
-                                    if ($storedHashedPassword !== $hashedPassword) {
+                                    if (!password_verify($value, $storedHashedPassword)) {
                                         $errors[$field][] = "Пользователь с такой комбинацией логин/пароль не существует.";
                                     }
                                 }

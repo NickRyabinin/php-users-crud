@@ -100,7 +100,7 @@ class UserController
         }
 
         if ($captchaText === $enteredCaptchaText) {
-            $hashedPassword = hash('sha256', $password);
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             if (
                 $this->user->store(
                     [
@@ -173,11 +173,10 @@ class UserController
 
         $userId = $this->user->getValue('user', 'id', 'email', $email);
         $password = $this->request->getFormData('password');
-        $hashedPassword = hash('sha256', $password);
         $user = $this->user->show($userId);
         $userHashedPassword = $user['hashed_password'];
 
-        if (!$userId || ($hashedPassword !== $userHashedPassword)) {
+        if (!$userId || !password_verify($password, $userHashedPassword)) {
             $this->auth->recordLoginAttempt($email);
             $this->flash->set('error', "Неправильный Email или пароль!");
             $this->flash->set('status_code', '401');
@@ -276,7 +275,7 @@ class UserController
             $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
         }
 
-        $hashedPassword = hash('sha256', $password);
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         if (
             $this->user->store(
                 [
@@ -461,7 +460,7 @@ class UserController
             $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
         }
 
-        $hashedPassword = empty($password) ? $currentUser['hashed_password'] : hash('sha256', $password);
+        $hashedPassword = empty($password) ? $currentUser['hashed_password'] : password_hash($password, PASSWORD_DEFAULT);
 
         if (
             $this->user->update(
@@ -491,7 +490,6 @@ class UserController
         $id = $this->request->getResourceId();
         $deleteConfirmation = $this->request->getFormData('delete_confirmation');
 
-        // ! Маршруты перенаправлений будут зависеть от авторизации и аутентификации
         if ($id && $deleteConfirmation) {
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
             $serverUploadDir = __DIR__ . '/../assets/avatars/';
@@ -500,6 +498,9 @@ class UserController
                 $this->flash->set('success', "Пользователь успешно удалён!");
                 if ($currentProfilePicture && file_exists($serverUploadDir . basename($currentProfilePicture))) {
                     unlink($serverUploadDir . basename($currentProfilePicture));
+                }
+                if ($id === $this->auth->getAuthId()) {
+                    $this->response->redirect('/users/logout');
                 }
                 $this->response->redirect('/users');
             }
