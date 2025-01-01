@@ -41,6 +41,7 @@ const ENV_FILE_PATH = __DIR__ . '/.env';
 const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 const ROUTES_PATH = __DIR__ . '/src/routes.php';
 const TEMPLATES_PATH = __DIR__ . '/templates/';
+const FONT_PATH = __DIR__ . '/assets/fonts/OpenSans-Regular.ttf';
 
 const SERVER_UPLOAD_DIR = __DIR__ . '/assets/avatars/';
 
@@ -52,7 +53,7 @@ $pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
 
 // Создание экземпляров сущностей
-$captcha = new Captcha();
+$captcha = new Captcha(FONT_PATH);
 $flash = new Flash();
 $request = new Request();
 $response = new Response($flash);

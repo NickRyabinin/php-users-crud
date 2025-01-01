@@ -25,7 +25,7 @@ nav {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #111111;
+  background-color: #111;
   padding: 10px;
   z-index: 1000;
 }
@@ -78,10 +78,10 @@ li {
 }
 
 .card {
-  background-color: #111111;
+  background-color: #111;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px #0000001A;
   width: 400px;
 }
 
@@ -136,6 +136,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
+
 button a {
   color: white;
 }
@@ -186,8 +187,8 @@ img {
 
 .flash-close {
   position: absolute;
-  top: 0px;
-  right: 0px;
+  top: 0;
+  right: 0;
   background: none;
   border: none;
   color: inherit;

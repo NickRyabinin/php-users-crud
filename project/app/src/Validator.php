@@ -90,9 +90,10 @@ class Validator
                             if ($ruleParam) {
                                 $login = $data[$ruleParam] ?? null;
                                 if ($login) {
-                                    $storedHashedPassword = $this->model->getValue('user', 'hashed_password', 'login', $login);
+                                    $storedHashedPassword = $this->model
+                                        ->getValue('user', 'hashed_password', 'login', $login);
                                     if (!password_verify($value, $storedHashedPassword)) {
-                                        $errors[$field][] = "Пользователь с такой комбинацией логин/пароль не существует.";
+                                        $errors[$field][] = "Нет пользователя с такой комбинацией логин/пароль.";
                                     }
                                 }
                             }

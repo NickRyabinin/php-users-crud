@@ -460,7 +460,9 @@ class UserController
             $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
         }
 
-        $hashedPassword = empty($password) ? $currentUser['hashed_password'] : password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = empty($password)
+            ? $currentUser['hashed_password']
+            : password_hash($password, PASSWORD_DEFAULT);
 
         if (
             $this->user->update(

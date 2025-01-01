@@ -15,9 +15,13 @@ final class Database
 {
     private static ?Database $connection = null;
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     public function connect(string $envFilePath): PDO
     {

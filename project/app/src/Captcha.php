@@ -9,13 +9,14 @@ namespace src;
 
 class Captcha
 {
-    private $width;
-    private $height;
-    private $fontSize;
-    private $fontPath;
-    private $captchaText;
+    private int $width;
+    private int $height;
+    private int $fontSize;
+    private string $fontPath;
+    private string $captchaText;
+    private const CAPTCHA_LENGTH = 4;
 
-    public function __construct(int $width = 200, int $height = 80, int $fontSize = 30, string $fontPath = '/assets/fonts/OpenSans-Regular.ttf')
+    public function __construct(string $fontPath, int $width = 200, int $height = 80, int $fontSize = 30)
     {
         $this->width = $width;
         $this->height = $height;
@@ -23,7 +24,7 @@ class Captcha
         $this->fontPath = $fontPath;
     }
 
-    private function generateRandomText(int $length = 4): void
+    private function generateRandomText(int $length = self::CAPTCHA_LENGTH): void
     {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         $this->captchaText = '';
@@ -38,12 +39,12 @@ class Captcha
         $this->generateRandomText();
 
         $image = imagecreatetruecolor($this->width, $this->height);
-        $backgroundColor = imagecolorallocate($image, 255, 255, 255); // белый фон
+        $backgroundColor = (int) imagecolorallocate($image, 255, 255, 255); // белый фон
         imagefilledrectangle($image, 0, 0, $this->width, $this->height, $backgroundColor);
 
         // Добавляем лёгкие шумы
         for ($i = 0; $i < 256; $i++) {
-            $noiseColor = imagecolorallocate($image, rand(0, 100), rand(0, 100), rand(0, 100));
+            $noiseColor = (int) imagecolorallocate($image, rand(0, 100), rand(0, 100), rand(0, 100));
             imagesetpixel($image, rand(0, $this->width), rand(0, $this->height), $noiseColor);
         }
 
@@ -52,7 +53,7 @@ class Captcha
             $angle = rand(-30, 30);
             $x = ($this->width / 4) * $i + rand(10, 20);
             $y = rand(40, 60);
-            $textColor = imagecolorallocate($image, rand(0, 100), rand(0, 100), rand(0, 100));
+            $textColor = (int) imagecolorallocate($image, rand(0, 100), rand(0, 100), rand(0, 100));
             imagettftext($image, $this->fontSize, $angle, $x, $y, $textColor, $this->fontPath, $this->captchaText[$i]);
         }
 
@@ -63,10 +64,7 @@ class Captcha
 
     private function renderCaptcha(mixed $image): void
     {
-        // Устанавливаем заголовок, чтобы браузер знал, что это изображение PNG
         header('Content-Type: image/png');
-        
-        // Выводим изображение в формате PNG
         imagepng($image);
     }
 
