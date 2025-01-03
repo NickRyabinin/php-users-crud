@@ -3,7 +3,10 @@ build-dev:
 	mkdir -p ./project/db/
 	mkdir -p ./project/tests/
 	mkdir -p ./project/app/logs/
+	mkdir -p ./project/app/assets/avatars/
 	touch ./project/app/logs/error.log
+	chmod -R 777 ./project/app/logs/
+	chmod -R 777 ./project/app/assets/avatars/
 	cp ./configs/* ./project/
 	cp ./configs/.htmlhintrc ./configs/.stylelintrc ./project/
 	cp -n ./configs/.env.example ./project/app/.env || true
