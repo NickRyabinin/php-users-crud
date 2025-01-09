@@ -23,6 +23,7 @@ use src\Auth;
 use src\AuthMiddleware;
 use src\Captcha;
 use src\Database;
+use src\FileHandler;
 use src\Flash;
 use src\PageController;
 use src\Router;
@@ -63,6 +64,7 @@ $router = new Router($request, $authMiddleware);
 $view = new View(TEMPLATES_PATH);
 $user = new User($pdo);
 $validator = new Validator($user);
+$fileHandler = new FileHandler(SERVER_UPLOAD_DIR);
 $userController = new UserController(
     [
         'request' => $request,
@@ -73,6 +75,7 @@ $userController = new UserController(
         'flash' => $flash,
         'validator' => $validator,
         'auth' => $auth,
+        'fileHandler' => $fileHandler,
     ]
 );
 $pageController = new PageController(
