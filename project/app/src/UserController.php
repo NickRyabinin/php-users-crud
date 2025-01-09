@@ -18,6 +18,7 @@ class UserController
     private Flash $flash;
     private Validator $validator;
     private Auth $auth;
+    private FileHandler $fileHandler;
 
     public function __construct(array $params)
     {
@@ -29,6 +30,7 @@ class UserController
         $this->flash = $params['flash'];
         $this->validator = $params['validator'];
         $this->auth = $params['auth'];
+        $this->fileHandler = $params['fileHandler'];
     }
 
     public function showCaptcha(): void
@@ -494,12 +496,13 @@ class UserController
 
         if ($id && $deleteConfirmation) {
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
-            $serverUploadDir = __DIR__ . '/../assets/avatars/';
 
             if ($this->user->destroy($id)) {
                 $this->flash->set('success', "Пользователь успешно удалён!");
-                if ($currentProfilePicture && file_exists($serverUploadDir . basename($currentProfilePicture))) {
-                    unlink($serverUploadDir . basename($currentProfilePicture));
+                if ($currentProfilePicture) {
+                    if (!$this->fileHandler->delete($currentProfilePicture)) {
+                        // ошибку логировать, но во флэш-сообщения не выводить
+                    }
                 }
                 if ($id === $this->auth->getAuthId()) {
                     $this->response->redirect('/users/logout');
