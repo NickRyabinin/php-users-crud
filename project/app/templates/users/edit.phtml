@@ -17,7 +17,7 @@
         <input type="file" id="profile_picture" name="profile_picture" accept="image/png, image/jpeg" />
         <div class="horizontal-container">
           <?php if (!empty($user['profile_picture'])): ?>
-            <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар">
+            <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар пользователя">
           <?php endif; ?>
           <div id="file-error-message"></div>
         </div>

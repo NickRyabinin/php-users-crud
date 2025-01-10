@@ -2,9 +2,11 @@
   <div class="card">
     <h2>Профиль пользователя</h2>
     <h3><?= htmlspecialchars($user['login']) ?></h3>
-    <a href="<?= htmlspecialchars($user['profile_picture']) ?>">
-      <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Аватар пользователя">
-    </a>
+    <?php if (!empty($user['profile_picture'])): ?>
+      <a href="<?= htmlspecialchars($user['profile_picture']) ?>">
+        <img src="<?= htmlspecialchars($user['profile_picture']) ?? ''?>" alt="Аватар пользователя">
+      </a>
+    <?php endif; ?>
     <p>Email: <?= htmlspecialchars($user['email']) ?></p>
     <p>Роль: <?= $user['role'] ?></p>
     <p>Зарегистрирован: <?= $user['created_at'] ?></p>
