@@ -11,6 +11,17 @@ class FileHandler
         $this->uploadDir = $serverUploadDir;
     }
 
+    public function getRelativeUploadDir(): string
+    {
+        $baseDir = dirname(__DIR__);
+        return str_replace($baseDir, '', $this->uploadDir);
+    }
+
+    public function isFile(array $file): bool
+    {
+        return isset($file['error']) && $file['error'] === UPLOAD_ERR_OK;
+    }
+
     public function upload(array $file): string | false
     {
         if ($file['error'] !== UPLOAD_ERR_OK) {
