@@ -22,9 +22,9 @@ class Request
         return isset($this->data[$key]) ? htmlspecialchars($this->data[$key], ENT_QUOTES, 'UTF-8') : null;
     }
 
-    public function getFile(string $key): mixed
+    public function getFile(string $key): array
     {
-        return $this->files[$key] ?? null;
+        return $this->files[$key] ?? [];
     }
 
     public function getHttpMethod(): string
