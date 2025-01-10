@@ -176,7 +176,7 @@ class UserController
         $userId = $this->user->getValue('user', 'id', 'email', $email);
         $password = $this->request->getFormData('password');
         $user = $this->user->show($userId);
-        $userHashedPassword = $user['hashed_password'];
+        $userHashedPassword = $user['hashed_password'] ?? '';
 
         if (!$userId || !password_verify($password, $userHashedPassword)) {
             $this->auth->recordLoginAttempt($email);
@@ -264,17 +264,14 @@ class UserController
         }
 
         $profilePictureRelativeUrl = "";
-        if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
-            $serverUploadDir = __DIR__ . '/../assets/avatars/';
-            $relativeUploadDir = '/assets/avatars/';
-            $uniqueFileName = uniqid() . '_' . basename($uploadedFile['name']);
-            $profilePicture = $serverUploadDir . $uniqueFileName;
-            if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
+        if ($this->fileHandler->isFile($uploadedFile)) {
+            $uniqueFileName = $this->fileHandler->upload($uploadedFile);
+            if ($uniqueFileName === false) {
                 $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
                 $this->flash->set('status_code', '422');
                 $this->response->redirect('/users/new', $dataToValidate);
             }
-            $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
+            $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
         }
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -426,7 +423,7 @@ class UserController
             $dataToValidate['password'] = $password;
             $dataToValidate['confirm_password'] = $passwordConfirmation;
         }
-        if ($uploadedFile) {
+        if ($this->fileHandler->isFile($uploadedFile)) {
             $validationRules['profile_picture'] = 'file:0-300|image';
             $dataToValidate['profile_picture'] = $uploadedFile;
         }
@@ -444,22 +441,21 @@ class UserController
         }
 
         $profilePictureRelativeUrl = "";
-        if ($uploadedFile && $uploadedFile['error'] === UPLOAD_ERR_OK) {
-            $serverUploadDir = __DIR__ . '/../assets/avatars/';
-            $relativeUploadDir = '/assets/avatars/';
-            $uniqueFileName = uniqid() . '_' . basename($uploadedFile['name']);
-            $profilePicture = $serverUploadDir . $uniqueFileName;
+        if ($this->fileHandler->isFile($uploadedFile)) {
+            $uniqueFileName = $this->fileHandler->upload($uploadedFile);
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
 
-            if (!move_uploaded_file($uploadedFile['tmp_name'], $profilePicture)) {
+            if ($uniqueFileName === false) {
                 $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
                 $this->flash->set('status_code', '422');
                 $this->response->redirect("/users/{$id}/edit", $dataToValidate);
             }
-            if ($currentProfilePicture && file_exists($serverUploadDir . basename($currentProfilePicture))) {
-                unlink($serverUploadDir . basename($currentProfilePicture));
+            if ($currentProfilePicture) {
+                if (!$this->fileHandler->delete($currentProfilePicture)) {
+                    // ошибку логировать, но во флэш-сообщения не выводить
+                }
             }
-            $profilePictureRelativeUrl = $relativeUploadDir . $uniqueFileName;
+            $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
         }
 
         $hashedPassword = empty($password)
