@@ -33,6 +33,7 @@ use src\View;
 use src\Request;
 use src\Response;
 use src\Validator;
+use src\Logger;
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -43,6 +44,7 @@ const MIGRATION_PATH = __DIR__ . '/src/migrations/migration.sql';
 const ROUTES_PATH = __DIR__ . '/src/routes.php';
 const TEMPLATES_PATH = __DIR__ . '/templates/';
 const FONT_PATH = __DIR__ . '/assets/fonts/OpenSans-Regular.ttf';
+const LOG_PATH = __DIR__ . '/logs/error.log';
 
 const SERVER_UPLOAD_DIR = __DIR__ . '/assets/avatars/';
 
@@ -54,6 +56,7 @@ $pdo = Database::get()->connect(ENV_FILE_PATH);
 Database::get()->migrate($pdo, MIGRATION_PATH);
 
 // Создание экземпляров сущностей
+$logger = new Logger(LOG_PATH);
 $captcha = new Captcha(FONT_PATH);
 $flash = new Flash();
 $request = new Request();
@@ -62,7 +65,7 @@ $auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
 $authMiddleware = new AuthMiddleware($auth, $response);
 $router = new Router($request, $authMiddleware);
 $view = new View(TEMPLATES_PATH);
-$user = new User($pdo);
+$user = new User($pdo, $logger);
 $validator = new Validator($user);
 $fileHandler = new FileHandler(SERVER_UPLOAD_DIR);
 $userController = new UserController(
@@ -76,6 +79,7 @@ $userController = new UserController(
         'validator' => $validator,
         'auth' => $auth,
         'fileHandler' => $fileHandler,
+        'logger' => $logger,
     ]
 );
 $pageController = new PageController(
