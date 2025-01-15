@@ -25,10 +25,12 @@ class User
         'role'
     ];
     private \PDO $pdo;
+    private Logger $logger;
 
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo, Logger $logger)
     {
         $this->pdo = $pdo;
+        $this->logger = $logger;
     }
 
     public function __toString(): string
@@ -69,7 +71,7 @@ class User
             $stmt->execute([':id' => $id]);
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            $this->logger->log($e->getMessage());
             return [];
         }
     }
@@ -94,8 +96,7 @@ class User
             }
             return $stmt->execute();
         } catch (\PDOException $e) {
-            // Логирование ошибки БД в файл
-            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            $this->logger->log($e->getMessage());
             return false;
         }
     }
@@ -121,7 +122,7 @@ class User
             $stmt->bindValue(":id", $id);
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            $this->logger->log($e->getMessage());
             return false;
         }
     }
@@ -138,7 +139,7 @@ class User
             $stmt->bindParam(":id", $id);
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            $this->logger->log($e->getMessage());
             return false;
         }
     }
@@ -159,7 +160,7 @@ class User
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([":{$conditionKey}" => $conditionValue]);
         } catch (\PDOException $e) {
-            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            $this->logger->log($e->getMessage());
             return false;
         }
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
@@ -181,7 +182,7 @@ class User
             $stmt->bindValue(':email', $email);
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log($e->getMessage(), 3, __DIR__ . '/../logs/error.log');
+            $this->logger->log($e->getMessage());
             return false;
         }
     }

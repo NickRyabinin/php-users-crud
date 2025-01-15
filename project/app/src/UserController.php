@@ -19,6 +19,7 @@ class UserController
     private Validator $validator;
     private Auth $auth;
     private FileHandler $fileHandler;
+    private Logger $logger;
 
     public function __construct(array $params)
     {
@@ -31,6 +32,7 @@ class UserController
         $this->validator = $params['validator'];
         $this->auth = $params['auth'];
         $this->fileHandler = $params['fileHandler'];
+        $this->logger = $params['logger'];
     }
 
     public function showCaptcha(): void
@@ -452,7 +454,7 @@ class UserController
             }
             if ($currentProfilePicture) {
                 if (!$this->fileHandler->delete($currentProfilePicture)) {
-                    // ошибку логировать, но во флэш-сообщения не выводить
+                    $this->logger->log('FileHandler delete() error');
                 }
             }
             $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
@@ -497,7 +499,7 @@ class UserController
                 $this->flash->set('success', "Пользователь успешно удалён!");
                 if ($currentProfilePicture) {
                     if (!$this->fileHandler->delete($currentProfilePicture)) {
-                        // ошибку логировать, но во флэш-сообщения не выводить
+                        $this->logger->log('FileHandler delete() error');
                     }
                 }
                 if ($id === $this->auth->getAuthId()) {
