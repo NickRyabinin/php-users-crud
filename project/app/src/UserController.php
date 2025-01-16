@@ -8,21 +8,23 @@
 
 namespace src;
 
-class UserController
+class UserController extends BaseController
 {
     private Request $request;
     private Response $response;
     private User $user;
-    private View $view;
+    protected View $view;
     private Captcha $captcha;
-    private Flash $flash;
+    protected Flash $flash;
     private Validator $validator;
-    private Auth $auth;
+    protected Auth $auth;
     private FileHandler $fileHandler;
     private Logger $logger;
 
     public function __construct(array $params)
     {
+        parent::__construct($params);
+
         $this->request = $params['request'];
         $this->response = $params['response'];
         $this->user = $params['user'];
@@ -42,22 +44,8 @@ class UserController
 
     public function showRegistrationForm(): void
     {
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-
-        $flashMessages = $this->flash->get();
         $pageTitle = 'Регистрация пользователя';
-        $this->view->render(
-            'auth/register',
-            [
-                'flash' => $flashMessages,
-                'title' => $pageTitle,
-                'auth' => $this->auth->isAuth(),
-                'authId' => $this->auth->getAuthId(),
-                'admin' => $this->auth->isAdmin(),
-            ],
-            $httpStatusCode
-        );
+        $this->renderView('auth/register', ['title' => $pageTitle]);
     }
 
     public function register(): void
@@ -134,22 +122,8 @@ class UserController
 
     public function showLoginForm(): void
     {
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-
-        $flashMessages = $this->flash->get();
         $pageTitle = 'Вход в приложение';
-        $this->view->render(
-            'auth/login',
-            [
-                'flash' => $flashMessages,
-                'title' => $pageTitle,
-                'auth' => $this->auth->isAuth(),
-                'authId' => $this->auth->getAuthId(),
-                'admin' => $this->auth->isAdmin(),
-            ],
-            $httpStatusCode
-        );
+        $this->renderView('auth/login', ['title' => $pageTitle]);
     }
 
     public function login(): void
@@ -208,22 +182,8 @@ class UserController
 
     public function create(): void
     {
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-
-        $flashMessages = $this->flash->get();
         $pageTitle = 'Создание пользователя';
-        $this->view->render(
-            'users/create',
-            [
-                'flash' => $flashMessages,
-                'title' => $pageTitle,
-                'auth' => $this->auth->isAuth(),
-                'authId' => $this->auth->getAuthId(),
-                'admin' => $this->auth->isAdmin(),
-            ],
-            $httpStatusCode
-        );
+        $this->renderView('users/create', ['title' => $pageTitle]);
     }
 
     public function store(): void

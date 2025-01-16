@@ -7,37 +7,24 @@
 
 namespace src;
 
-class PageController
+class PageController extends BaseController
 {
-    private View $view;
-    private Flash $flash;
-    private Auth $auth;
+    /**
+     * @param array{
+     *     view: View,
+     *     flash: Flash,
+     *     auth: Auth
+     * } $params
+     */
 
     public function __construct(array $params)
     {
-        $this->view = $params['view'];
-        $this->flash = $params['flash'];
-        $this->auth = $params['auth'];
+        parent::__construct($params);
     }
 
     public function read(): void
     {
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-
-        $flashMessages = $this->flash->get();
         $pageTitle = 'О приложении';
-
-        $this->view->render(
-            'pages/home',
-            [
-                'flash' => $flashMessages,
-                'title' => $pageTitle,
-                'auth' => $this->auth->isAuth(),
-                'authId' => $this->auth->getAuthId(),
-                'admin' => $this->auth->isAdmin(),
-            ],
-            $httpStatusCode
-        );
+        $this->renderView('pages/home', ['title' => $pageTitle]);
     }
 }
