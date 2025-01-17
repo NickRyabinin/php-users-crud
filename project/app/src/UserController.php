@@ -13,7 +13,6 @@ class UserController extends BaseController
     private Request $request;
     private Response $response;
     private User $user;
-    protected View $view;
     private Captcha $captcha;
     protected Flash $flash;
     private Validator $validator;
@@ -28,7 +27,6 @@ class UserController extends BaseController
         $this->request = $params['request'];
         $this->response = $params['response'];
         $this->user = $params['user'];
-        $this->view = $params['view'];
         $this->captcha = $params['captcha'];
         $this->flash = $params['flash'];
         $this->validator = $params['validator'];
@@ -268,31 +266,19 @@ class UserController extends BaseController
         $totalPages = ceil($totalRecords / $limit);
         $pageTitle = 'Список пользователей';
 
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-
-        $flashMessages = $this->flash->get();
-
         $data = [
-            'flash' => $flashMessages,
             'users' => $users,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords,
             'title' => $pageTitle,
-            'auth' => $this->auth->isAuth(),
-            'authId' => $this->auth->getAuthId(),
-            'admin' => $this->auth->isAdmin(),
         ];
 
-        $this->view->render('users/index', $data, $httpStatusCode);
+        $this->renderView('users/index', $data);
     }
 
     public function show(): void
     {
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-
         $id = $this->request->getResourceId();
 
         if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
@@ -302,27 +288,18 @@ class UserController extends BaseController
         }
 
         $user = $this->user->show($id);
-        $flashMessages = $this->flash->get();
         $pageTitle = 'Профиль пользователя';
 
         $data = [
-            'flash' => $flashMessages,
             'user' => $user,
             'title' => $pageTitle,
-            'auth' => $this->auth->isAuth(),
-            'authId' => $this->auth->getAuthId(),
-            'admin' => $this->auth->isAdmin(),
         ];
 
-        $this->view->render('users/show', $data, $httpStatusCode);
+        $this->renderView('users/show', $data);
     }
 
     public function edit(): void
     {
-        $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
-        $flashMessages = $this->flash->get();
-
         $id = $this->request->getResourceId();
 
         if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
@@ -335,15 +312,11 @@ class UserController extends BaseController
         $pageTitle = 'Изменение пользователя';
 
         $data = [
-            'flash' => $flashMessages,
             'user' => $user,
             'title' => $pageTitle,
-            'auth' => $this->auth->isAuth(),
-            'authId' => $this->auth->getAuthId(),
-            'admin' => $this->auth->isAdmin(),
         ];
 
-        $this->view->render('users/edit', $data, $httpStatusCode);
+        $this->renderView('users/edit', $data);
     }
 
     public function update(): void
