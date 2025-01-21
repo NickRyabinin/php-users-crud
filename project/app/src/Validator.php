@@ -37,28 +37,19 @@ class Validator
             $ruleName = $matches[1];
             $ruleParam = $matches[2] ?? null;
 
-            switch ($ruleName) {
-                case 'required':
-                    return $this->validateRequired($field, $value);
-                case 'string':
-                    return $this->validateString($field, $value);
-                case 'email':
-                    return $this->validateEmail($field, $value);
-                case 'unique':
-                    return $this->validateUnique($field, $value, $ruleParam);
-                case 'min':
-                    return $this->validateMin($field, $value, $ruleParam);
-                case 'max':
-                    return $this->validateMax($field, $value, $ruleParam);
-                case 'file':
-                    return $this->validateFile($field, $value, $ruleParam);
-                case 'image':
-                    return $this->validateImage($field, $value);
-                case 'current_password':
-                    return $this->validateCurrentPassword($value, $data, $ruleParam);
-                case 'confirmed':
-                    return $this->validateConfirmed($field, $value, $data, $ruleParam);
-            }
+            return match ($ruleName) {
+                'required' => $this->validateRequired($field, $value),
+                'string' => $this->validateString($field, $value),
+                'email' => $this->validateEmail($field, $value),
+                'unique' => $this->validateUnique($field, $value, $ruleParam),
+                'min' => $this->validateMin($field, $value, $ruleParam),
+                'max' => $this->validateMax($field, $value, $ruleParam),
+                'file' => $this->validateFile($field, $value, $ruleParam),
+                'image' => $this->validateImage($field, $value),
+                'current_password' => $this->validateCurrentPassword($value, $data, $ruleParam),
+                'confirmed' => $this->validateConfirmed($field, $value, $data, $ruleParam),
+                default => [],
+            };
         }
         return [];
     }
@@ -105,22 +96,22 @@ class Validator
 
     private function validateFile(string $field, $value, $ruleParam): array
     {
+        $errors = [];
         if ($ruleParam) {
             list($minSize, $maxSize) = array_map('intval', explode('-', $ruleParam));
             if (!is_array($value) || $value['error'] !== UPLOAD_ERR_OK) {
                 return $minSize > 0 ? ["Файл {$field} не был загружен на сервер."] : [];
             }
+
             $fileSize = filesize($value['tmp_name']);
-            $errors = [];
             if ($fileSize < $minSize * 1024) {
                 $errors[] = "Размер файла {$field} должен быть не менее {$minSize} КБ.";
             }
             if ($fileSize > $maxSize * 1024) {
                 $errors[] = "Размер файла {$field} не должен превышать {$maxSize} КБ.";
             }
-            return $errors;
         }
-        return [];
+        return $errors;
     }
 
     private function validateImage(string $field, $value): array
@@ -134,7 +125,7 @@ class Validator
             : [];
     }
 
-    private function validateCurrentPassword($value, $data, $ruleParam): array
+    private function validateCurrentPassword($value, array $data, $ruleParam): array
     {
         if ($ruleParam) {
             $login = $data[$ruleParam] ?? null;
@@ -148,7 +139,7 @@ class Validator
         return [];
     }
 
-    private function validateConfirmed(string $field, $value, $data, $ruleParam): array
+    private function validateConfirmed(string $field, $value, array $data, $ruleParam): array
     {
         if ($ruleParam) {
             $confirmationValue = $data[$ruleParam] ?? null;
