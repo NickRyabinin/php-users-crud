@@ -191,7 +191,7 @@ class UserController extends BaseController
         $password = $this->request->getFormData('password');
         $passwordConfirmation = $this->request->getFormData('confirm_password');
         $role = $this->request->getFormData('role') ?? 'user';
-        $isActiveValue = $this->request->getFormData('is_active') ?? true;
+        $isActiveValue = $this->request->getFormData('is_active') ?? false;
         $isActive = $isActiveValue ? 'true' : 'false';
         $uploadedFile = $this->request->getFile('profile_picture');
 
@@ -279,15 +279,7 @@ class UserController extends BaseController
 
     public function show(): void
     {
-        $id = $this->request->getResourceId();
-
-        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
-            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
-            $this->flash->set('status_code', '403');
-            $this->response->redirect("/");
-        }
-
-        $user = $this->user->show($id);
+        $user = $this->getUserData();
         $pageTitle = 'Профиль пользователя';
 
         $data = [
@@ -300,15 +292,7 @@ class UserController extends BaseController
 
     public function edit(): void
     {
-        $id = $this->request->getResourceId();
-
-        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
-            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
-            $this->flash->set('status_code', '403');
-            $this->response->redirect("/");
-        }
-
-        $user = $this->user->show($id);
+        $user = $this->getUserData();
         $pageTitle = 'Изменение пользователя';
 
         $data = [
@@ -321,24 +305,20 @@ class UserController extends BaseController
 
     public function update(): void
     {
+        $currentUser = $this->getUserData();
+
         $login = $this->request->getFormData('username');
         $email = $this->request->getFormData('email');
         $password = $this->request->getFormData('password');
         $passwordConfirmation = $this->request->getFormData('confirm_password');
         $role = $this->request->getFormData('role') ?? 'user';
-        $isActiveValue = $this->request->getFormData('is_active') ?? true;
+        $isActiveValue = $this->request->getFormData('is_active') ?? false;
         $isActive = $isActiveValue ? 'true' : 'false';
         $uploadedFile = $this->request->getFile('profile_picture');
 
-        $id = $this->request->getResourceId();
-
-        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
-            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
-            $this->flash->set('status_code', '403');
-            $this->response->redirect("/");
+        if (!$this->auth->isAdmin()) {
+            $isActive = $currentUser['is_active'];
         }
-
-        $currentUser = $this->user->show($id);
 
         $validationRules = [];
         $dataToValidate = [];
@@ -366,6 +346,8 @@ class UserController extends BaseController
         $dataToValidate['role'] = $role;
 
         $errors = $this->validator->validate($validationRules, $dataToValidate);
+        $id = $this->request->getResourceId();
+
         if (!empty($errors)) {
             $flattenedErrors = array_reduce($errors, 'array_merge', []);
             foreach ($flattenedErrors as $error) {
@@ -445,5 +427,18 @@ class UserController extends BaseController
         }
         $this->flash->set('error', "Подтвердите действие, отметив чекбокс");
         $this->response->redirect('/users');
+    }
+
+    private function getUserData(): array
+    {
+        $id = $this->request->getResourceId();
+
+        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
+            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
+            $this->flash->set('status_code', '403');
+            $this->response->redirect("/");
+        }
+
+        return $this->user->show($id);
     }
 }
