@@ -17,14 +17,14 @@ class FileHandler
         return str_replace($baseDir, '', $this->uploadDir);
     }
 
-    public function isFile(array $file): bool
+    public function isFile(mixed $file): bool
     {
         return isset($file['error']) && $file['error'] === UPLOAD_ERR_OK;
     }
 
-    public function upload(array $file): string | false
+    public function upload(mixed $file): string | false
     {
-        if ($file['error'] !== UPLOAD_ERR_OK) {
+        if (!$this->isFile($file)) {
             return false;
         }
 
