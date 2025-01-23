@@ -46,22 +46,31 @@ class UserController extends BaseController
         $this->renderView('auth/register', ['title' => $pageTitle]);
     }
 
-    public function register(): void
+    private function isEnteredCaptchaValid(): bool
     {
         $captchaText = $this->captcha->getCaptchaText();
         $this->captcha->clearCaptchaText();
         $enteredCaptchaText = $this->request->getFormData('captcha_input');
 
-        $login = $this->request->getFormData('username');
-        $email = $this->request->getFormData('email');
-        $password = $this->request->getFormData('password');
-        $passwordConfirmation = $this->request->getFormData('confirm_password');
-        $role = $this->request->getFormData('role') ?? 'user';
-        $isActiveValue = $this->request->getFormData('is_active') ?? true;
-        $isActive = $isActiveValue ? 'true' : 'false';
-        $uploadedFile = $this->request->getFile('profile_picture');
+        return $captchaText === $enteredCaptchaText;
+    }
 
-        $validationRules = [
+    private function getEnteredFormData(): array
+    {
+        return [
+            'login' => $this->request->getFormData('username'),
+            'email' => $this->request->getFormData('email'),
+            'password' => $this->request->getFormData('password'),
+            'confirm_password' => $this->request->getFormData('confirm_password'),
+            'role' => $this->request->getFormData('role') ?? 'user',
+            'is_active' => $this->request->getFormData('is_active') ?? false,
+            'profile_picture' => $this->request->getFile('profile_picture'),
+        ];
+    }
+
+    private function getValidationRules(): array
+    {
+        return [
             'login' => 'required|string|min:3|max:20|unique:login',
             'email' => 'required|email|unique:email',
             'password' => 'required|min:8|max:20|confirmed:confirm_password',
@@ -70,52 +79,75 @@ class UserController extends BaseController
             'is_active' => '',
             'role' => '',
         ];
-        $dataToValidate = [
-            'login' => $login,
-            'email' => $email,
-            'password' => $password,
-            'confirm_password' => $passwordConfirmation,
-            'profile_picture' => $uploadedFile,
-            'is_active' => $isActive,
-            'role' => $role,
-        ];
-        $errors = $this->validator->validate($validationRules, $dataToValidate);
-        if (!empty($errors)) {
-            $flattenedErrors = array_reduce($errors, 'array_merge', []);
-            foreach ($flattenedErrors as $error) {
-                $this->flash->set('error', $error);
-            }
-            $this->flash->set('status_code', '422');
-            $this->response->redirect('/users/register', $dataToValidate);
+    }
+
+    private function handleValidationErrors(array $errors, string $redirectUrl, array $data): void
+    {
+        $flattenedErrors = array_reduce($errors, 'array_merge', []);
+        foreach ($flattenedErrors as $error) {
+            $this->flash->set('error', $error);
         }
-
-        if ($captchaText === $enteredCaptchaText) {
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            if (
-                $this->user->store(
-                    [
-                        'login' => $login,
-                        'email' => $email,
-                        'hashed_password' => $hashedPassword,
-                        'profile_picture' => '',
-                        'is_active' => $isActive,
-                        'role' => $role,
-                    ]
-                )
-            ) {
-                $this->flash->set('success', 'Регистрация прошла успешно!');
-                $this->flash->set('status_code', '201');
-
-                $this->response->redirect("/");
-            }
-            $this->flash->set('error', "Что-то пошло не так ...");
-            $this->flash->set('status_code', '422');
-            $this->response->redirect('/users/register', $dataToValidate);
-        }
-
-        $this->flash->set('error', 'Неправильный текст капчи');
         $this->flash->set('status_code', '422');
-        $this->response->redirect('/users/register', $dataToValidate);
+        $this->response->redirect($redirectUrl, $data);
+    }
+
+    private function handleCaptchaErrors(string $redirectUrl, array $data): void
+    {
+        $this->flash->set('error', "Неправильный текст капчи");
+        $this->flash->set('status_code', '422');
+        $this->response->redirect($redirectUrl, $data);
+    }
+
+    private function handleUnknownErrors(string $redirectUrl, array $data): void
+    {
+
+        $this->flash->set('error', "Что-то пошло не так ...");
+        $this->flash->set('status_code', '422');
+        $this->response->redirect($redirectUrl, $data);
+    }
+
+    private function handleNoErrors(string $message, string $statusCode, string $redirectUrl): void
+    {
+        $this->flash->set('success', $message);
+        $this->flash->set('status_code', $statusCode);
+        $this->response->redirect($redirectUrl);
+    }
+
+    private function createUser(array $data): void
+    {
+        $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+        if (
+            $this->user->store(
+                [
+                    'login' => $data['login'],
+                    'email' => $data['email'],
+                    'hashed_password' => $hashedPassword,
+                    'profile_picture' => '',
+                    'is_active' => $data['is_active'],
+                    'role' => $data['role'],
+                ]
+            )
+        ) {
+            $this->handleNoErrors('Регистрация прошла успешно!', '201', '/');
+        }
+        $this->handleUnknownErrors('/users/register', $data);
+    }
+
+    public function register(): void
+    {
+        $formData = $this->getEnteredFormData();
+        $formData['is_active'] = 'true'; // любой пользователь по умолчанию при регистрации
+
+        $errors = $this->validator->validate($this->getValidationRules(), $formData);
+        if (!empty($errors)) {
+            $this->handleValidationErrors($errors, '/users/register', $formData);
+        }
+
+        if (!$this->isEnteredCaptchaValid()) {
+            $this->handleCaptchaErrors('/users/register', $formData);
+        }
+
+        $this->createUser($formData);
     }
 
     public function showLoginForm(): void
@@ -137,11 +169,7 @@ class UserController extends BaseController
             $this->response->redirect("/users/login");
         }
 
-        $captchaText = $this->captcha->getCaptchaText();
-        $this->captcha->clearCaptchaText();
-        $enteredCaptchaText = $this->request->getFormData('captcha_input');
-
-        if ($captchaText !== $enteredCaptchaText) {
+        if (!$this->isEnteredCaptchaValid()) {
             $this->flash->set('error', "Неправильный текст капчи");
             $this->flash->set('status_code', '422');
             $this->response->redirect("/users/login");
@@ -195,15 +223,6 @@ class UserController extends BaseController
         $isActive = $isActiveValue ? 'true' : 'false';
         $uploadedFile = $this->request->getFile('profile_picture');
 
-        $validationRules = [
-            'login' => 'required|string|min:3|max:20|unique:login',
-            'email' => 'required|email|unique:email',
-            'password' => 'required|min:8|max:20|confirmed:confirm_password',
-            'confirm_password' => 'required|min:8|max:20',
-            'profile_picture' => 'file:0-300|image',
-            'is_active' => '',
-            'role' => '',
-        ];
         $dataToValidate = [
             'login' => $login,
             'email' => $email,
@@ -213,7 +232,7 @@ class UserController extends BaseController
             'is_active' => $isActive,
             'role' => $role,
         ];
-        $errors = $this->validator->validate($validationRules, $dataToValidate);
+        $errors = $this->validator->validate($this->getValidationRules(), $dataToValidate);
         if (!empty($errors)) {
             $flattenedErrors = array_reduce($errors, 'array_merge', []);
             foreach ($flattenedErrors as $error) {
