@@ -91,18 +91,10 @@ class UserController extends BaseController
         $this->response->redirect($redirectUrl, $data);
     }
 
-    private function handleCaptchaErrors(string $redirectUrl, array $data): void
+    private function handleErrors(string $message, string $statusCode, string $redirectUrl, array $data = []): void
     {
-        $this->flash->set('error', "Неправильный текст капчи");
-        $this->flash->set('status_code', '422');
-        $this->response->redirect($redirectUrl, $data);
-    }
-
-    private function handleUnknownErrors(string $redirectUrl, array $data): void
-    {
-
-        $this->flash->set('error', "Что-то пошло не так ...");
-        $this->flash->set('status_code', '422');
+        $this->flash->set('error', $message);
+        $this->flash->set('status_code', $statusCode);
         $this->response->redirect($redirectUrl, $data);
     }
 
@@ -130,13 +122,13 @@ class UserController extends BaseController
         ) {
             $this->handleNoErrors('Регистрация прошла успешно!', '201', '/');
         }
-        $this->handleUnknownErrors('/users/register', $data);
+        $this->handleErrors('Что-то пошло не так ...', '422', '/users/register', $data);
     }
 
     public function register(): void
     {
         $formData = $this->getEnteredFormData();
-        $formData['is_active'] = 'true'; // любой пользователь по умолчанию при регистрации
+        $formData['is_active'] = true; // любой пользователь по умолчанию при регистрации
 
         $errors = $this->validator->validate($this->getValidationRules(), $formData);
         if (!empty($errors)) {
@@ -144,7 +136,7 @@ class UserController extends BaseController
         }
 
         if (!$this->isEnteredCaptchaValid()) {
-            $this->handleCaptchaErrors('/users/register', $formData);
+            $this->handleErrors('Неправильный текст капчи', '422', '/users/register', $formData);
         }
 
         $this->createUser($formData);
@@ -214,65 +206,38 @@ class UserController extends BaseController
 
     public function store(): void
     {
-        $login = $this->request->getFormData('username');
-        $email = $this->request->getFormData('email');
-        $password = $this->request->getFormData('password');
-        $passwordConfirmation = $this->request->getFormData('confirm_password');
-        $role = $this->request->getFormData('role') ?? 'user';
-        $isActiveValue = $this->request->getFormData('is_active') ?? false;
-        $isActive = $isActiveValue ? 'true' : 'false';
-        $uploadedFile = $this->request->getFile('profile_picture');
+        $formData = $this->getEnteredFormData();
 
-        $dataToValidate = [
-            'login' => $login,
-            'email' => $email,
-            'password' => $password,
-            'confirm_password' => $passwordConfirmation,
-            'profile_picture' => $uploadedFile,
-            'is_active' => $isActive,
-            'role' => $role,
-        ];
-        $errors = $this->validator->validate($this->getValidationRules(), $dataToValidate);
+        $errors = $this->validator->validate($this->getValidationRules(), $formData);
         if (!empty($errors)) {
-            $flattenedErrors = array_reduce($errors, 'array_merge', []);
-            foreach ($flattenedErrors as $error) {
-                $this->flash->set('error', $error);
-            }
-            $this->flash->set('status_code', '422');
-            $this->response->redirect('/users/new', $dataToValidate);
+            $this->handleValidationErrors($errors, '/users/new', $formData);
         }
 
         $profilePictureRelativeUrl = "";
-        if ($this->fileHandler->isFile($uploadedFile)) {
-            $uniqueFileName = $this->fileHandler->upload($uploadedFile);
+        if ($this->fileHandler->isFile($formData['profile_picture'])) {
+            $uniqueFileName = $this->fileHandler->upload($formData['profile_picture']);
             if ($uniqueFileName === false) {
-                $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
-                $this->flash->set('status_code', '422');
-                $this->response->redirect('/users/new', $dataToValidate);
+                $this->handleErrors('Внутренняя ошибка при загрузке файла на сервер.', '422', '/users/new', $formData);
             }
             $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
         }
 
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = password_hash($formData['password'], PASSWORD_DEFAULT);
         if (
             $this->user->store(
                 [
-                    'login' => $login,
-                    'email' => $email,
+                    'login' => $formData['login'],
+                    'email' => $formData['email'],
                     'hashed_password' => $hashedPassword,
                     'profile_picture' => $profilePictureRelativeUrl,
-                    'is_active' => $isActive,
-                    'role' => $role,
+                    'is_active' => $formData['is_active'],
+                    'role' => $formData['role'],
                 ]
             )
         ) {
-            $this->flash->set('success', "Пользователь успешно создан");
-            $this->flash->set('status_code', '201');
-            $this->response->redirect('/users');
+            $this->handleNoErrors('Пользователь успешно создан', '201', '/users');
         }
-        $this->flash->set('error', "Что-то пошло не так ...");
-        $this->flash->set('status_code', '422');
-        $this->response->redirect('/users/new', $dataToValidate);
+        $this->handleErrors('Что-то пошло не так ...', '422', '/users/new', $formData);
     }
 
     public function index(): void
@@ -453,9 +418,7 @@ class UserController extends BaseController
         $id = $this->request->getResourceId();
 
         if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
-            $this->flash->set('error', 'Действие доступно только пользователям с правами администратора');
-            $this->flash->set('status_code', '403');
-            $this->response->redirect("/");
+            $this->handleErrors('Действие доступно только пользователям с правами администратора', '403', '/');
         }
 
         return $this->user->show($id);
