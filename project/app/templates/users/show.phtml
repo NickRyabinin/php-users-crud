@@ -7,11 +7,11 @@
         <img src="<?= htmlspecialchars($user['profile_picture']) ?? ''?>" alt="Аватар пользователя">
       </a>
     <?php endif; ?>
-    <p>Email: <?= htmlspecialchars($user['email']) ?></p>
+    <p>Емайл: <?= htmlspecialchars($user['email']) ?></p>
     <p>Роль: <?= $user['role'] ?></p>
     <p>Зарегистрирован: <?= $user['created_at'] ?></p>
     <p>Последнее посещение: <?= $user['last_login'] ?></p>
-    <p>Статус: <?= $user['is_active'] ? 'Активен' : 'Неактивен' ?></p>
+    <p>Статус: <?= $user['is_active'] ? 'активен' : 'неактивен' ?></p>
     <div class="horizontal-container">
       <button><a href="/users/<?= $user['id'] ?>/edit">Изменить</a></button>
       <?php if ($admin): ?>

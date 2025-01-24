@@ -56,7 +56,7 @@
       </div>
       <div class="form-group">
         <label for="is_active">Разрешена активность?</label>
-        <input type="checkbox" id="is_active" name="is_active" value="true" <?= (isset($flash['is_active'][0]) && $flash['is_active'][0] === 'true') ? 'checked' : '' ?>>
+        <input type="checkbox" id="is_active" name="is_active" value="true" <?= (isset($flash['is_active'][0]) && $flash['is_active'][0] === true) ? 'checked' : '' ?>>
       </div>
       <button type="submit">Создать</button>
     </form>
