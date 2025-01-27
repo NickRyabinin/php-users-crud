@@ -150,46 +150,36 @@ class UserController extends BaseController
 
     public function login(): void
     {
-        $email = $this->request->getFormData('email');
+        $formData = $this->getEnteredFormData();
 
-        if ($this->auth->hasTooManyLoginAttempts($email)) {
-            $this->flash->set(
-                'error',
-                'Аккаунт заблокирован на несколько минут - слишком много неудачных попыток входа.'
+        if ($this->auth->hasTooManyLoginAttempts($formData['email'])) {
+            $this->handleErrors(
+                'Аккаунт заблокирован на несколько минут - слишком много неудачных попыток входа.',
+                '401',
+                '/users/login'
             );
-            $this->flash->set('status_code', '401');
-            $this->response->redirect("/users/login");
         }
 
         if (!$this->isEnteredCaptchaValid()) {
-            $this->flash->set('error', "Неправильный текст капчи");
-            $this->flash->set('status_code', '422');
-            $this->response->redirect("/users/login");
+            $this->handleErrors('Неправильный текст капчи', '422', '/users/login');
         }
 
-        $userId = $this->user->getValue('user', 'id', 'email', $email);
-        $password = $this->request->getFormData('password');
+        $userId = $this->user->getValue('user', 'id', 'email', $formData['email']);
         $user = $this->user->show($userId);
         $userHashedPassword = $user['hashed_password'] ?? '';
 
-        if (!$userId || !password_verify($password, $userHashedPassword)) {
-            $this->auth->recordLoginAttempt($email);
-            $this->flash->set('error', "Неправильный Email или пароль!");
-            $this->flash->set('status_code', '401');
-            $this->response->redirect("/users/login");
+        if (!$userId || !password_verify($formData['password'], $userHashedPassword)) {
+            $this->auth->recordLoginAttempt($formData['email']);
+            $this->handleErrors('Неправильный Email или пароль!', '401', '/users/login');
         }
 
         if (!$user['is_active']) {
-            $this->flash->set('error', "Аккаунт неактивен (блокирован администратором).");
-            $this->flash->set('status_code', '401');
-            $this->response->redirect("/users/login");
+            $this->handleErrors('Аккаунт неактивен (блокирован администратором).', '401', '/users/login');
         }
 
         $this->auth->login($user);
-        $this->user->updateLastLogin($email);
-
-        $this->flash->set('success', "Аутентификация прошла успешно!");
-        $this->response->redirect("/users/{$userId}");
+        $this->user->updateLastLogin($formData['email']);
+        $this->handleNoErrors('Аутентификация прошла успешно!', '200', "/users/{$userId}");
     }
 
     public function logout(): void
