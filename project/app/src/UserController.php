@@ -63,7 +63,7 @@ class UserController extends BaseController
             'password' => $this->request->getFormData('password'),
             'confirm_password' => $this->request->getFormData('confirm_password'),
             'role' => $this->request->getFormData('role') ?? 'user',
-            'is_active' => $this->request->getFormData('is_active') ?? false,
+            'is_active' => $this->request->getFormData('is_active') ?? 'false',
             'profile_picture' => $this->request->getFile('profile_picture'),
         ];
     }
@@ -105,7 +105,21 @@ class UserController extends BaseController
         $this->response->redirect($redirectUrl);
     }
 
-    private function createUser(array $data): void
+    private function getAvatarPath(array $formData, string $redirectUrl): string
+    {
+        $profilePictureRelativeUrl = '';
+        if ($this->fileHandler->isFile($formData['profile_picture'])) {
+            $uniqueFileName = $this->fileHandler->upload($formData['profile_picture']);
+            if ($uniqueFileName === false) {
+                $this->logger->log('FileHandler upload() error');
+                $this->handleErrors('Ошибка при загрузке файла. Попробуйте снова.', '422', $redirectUrl, $formData);
+            }
+            $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
+        }
+        return $profilePictureRelativeUrl;
+    }
+
+    private function createUser(array $data, string $redirectUrl): void
     {
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         if (
@@ -114,21 +128,22 @@ class UserController extends BaseController
                     'login' => $data['login'],
                     'email' => $data['email'],
                     'hashed_password' => $hashedPassword,
-                    'profile_picture' => '',
+                    'profile_picture' => $this->getAvatarPath($data, $redirectUrl),
                     'is_active' => $data['is_active'],
                     'role' => $data['role'],
                 ]
             )
         ) {
-            $this->handleNoErrors('Регистрация прошла успешно!', '201', '/');
+            $this->handleNoErrors('Новый пользователь успешно создан', '201', '/');
         }
-        $this->handleErrors('Что-то пошло не так ...', '422', '/users/register', $data);
+        $this->logger->log('User store() error');
+        $this->handleErrors('Что-то пошло не так. Попробуйте снова.', '422', $redirectUrl, $data);
     }
 
     public function register(): void
     {
         $formData = $this->getEnteredFormData();
-        $formData['is_active'] = true; // любой пользователь по умолчанию при регистрации
+        $formData['is_active'] = 'true'; // любой пользователь по умолчанию при регистрации
 
         $errors = $this->validator->validate($this->getValidationRules(), $formData);
         if (!empty($errors)) {
@@ -139,7 +154,7 @@ class UserController extends BaseController
             $this->handleErrors('Неправильный текст капчи', '422', '/users/register', $formData);
         }
 
-        $this->createUser($formData);
+        $this->createUser($formData, '/users/register');
     }
 
     public function showLoginForm(): void
@@ -203,31 +218,7 @@ class UserController extends BaseController
             $this->handleValidationErrors($errors, '/users/new', $formData);
         }
 
-        $profilePictureRelativeUrl = "";
-        if ($this->fileHandler->isFile($formData['profile_picture'])) {
-            $uniqueFileName = $this->fileHandler->upload($formData['profile_picture']);
-            if ($uniqueFileName === false) {
-                $this->handleErrors('Внутренняя ошибка при загрузке файла на сервер.', '422', '/users/new', $formData);
-            }
-            $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
-        }
-
-        $hashedPassword = password_hash($formData['password'], PASSWORD_DEFAULT);
-        if (
-            $this->user->store(
-                [
-                    'login' => $formData['login'],
-                    'email' => $formData['email'],
-                    'hashed_password' => $hashedPassword,
-                    'profile_picture' => $profilePictureRelativeUrl,
-                    'is_active' => $formData['is_active'],
-                    'role' => $formData['role'],
-                ]
-            )
-        ) {
-            $this->handleNoErrors('Пользователь успешно создан', '201', '/users');
-        }
-        $this->handleErrors('Что-то пошло не так ...', '422', '/users/new', $formData);
+        $this->createUser($formData, '/users/new');
     }
 
     public function index(): void
@@ -331,13 +322,13 @@ class UserController extends BaseController
             $this->response->redirect("/users/{$id}/edit", $dataToValidate);
         }
 
-        $profilePictureRelativeUrl = "";
+        $profilePictureRelativeUrl = '';
         if ($this->fileHandler->isFile($uploadedFile)) {
             $uniqueFileName = $this->fileHandler->upload($uploadedFile);
             $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
 
             if ($uniqueFileName === false) {
-                $this->flash->set('error', "Внутренняя ошибка при загрузке файла изображения на сервер.");
+                $this->flash->set('error', 'Ошибка при загрузке файла. Попробуйте снова.');
                 $this->flash->set('status_code', '422');
                 $this->response->redirect("/users/{$id}/edit", $dataToValidate);
             }
@@ -371,7 +362,7 @@ class UserController extends BaseController
             $this->response->redirect("/users/{$id}");
         }
 
-        $this->flash->set('error', "Что-то пошло не так ...");
+        $this->flash->set('error', 'Что-то пошло не так. Попробуйте снова.');
         $this->flash->set('status_code', '422');
         $this->response->redirect("/users/{$id}/edit", $dataToValidate);
     }
@@ -396,7 +387,7 @@ class UserController extends BaseController
                 }
                 $this->response->redirect('/users');
             }
-            $this->flash->set('error', "Что-то пошло не так ...");
+            $this->flash->set('error', 'Что-то пошло не так. Попробуйте снова.');
             $this->response->redirect('/users');
         }
         $this->flash->set('error', "Подтвердите действие, отметив чекбокс");
