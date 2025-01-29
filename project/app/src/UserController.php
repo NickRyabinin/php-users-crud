@@ -271,100 +271,74 @@ class UserController extends BaseController
     public function update(): void
     {
         $currentUser = $this->getUserData();
-
-        $login = $this->request->getFormData('username');
-        $email = $this->request->getFormData('email');
-        $password = $this->request->getFormData('password');
-        $passwordConfirmation = $this->request->getFormData('confirm_password');
-        $role = $this->request->getFormData('role') ?? 'user';
-        $isActiveValue = $this->request->getFormData('is_active') ?? false;
-        $isActive = $isActiveValue ? 'true' : 'false';
-        $uploadedFile = $this->request->getFile('profile_picture');
-
-        if (!$this->auth->isAdmin()) {
-            $isActive = $currentUser['is_active'];
-        }
+        $formData = $this->getEnteredFormData();
 
         $validationRules = [];
         $dataToValidate = [];
 
         // !!! Валидировать будем только изменённые поля
-        if ($login !== $currentUser['login']) {
+        if ($formData['login'] !== $currentUser['login']) {
             $validationRules['login'] = 'string|min:3|max:20|unique:login';
-            $dataToValidate['login'] = $login;
+            $dataToValidate['login'] = $formData['login'];
         }
-        if ($email !== $currentUser['email']) {
+        if ($formData['email'] !== $currentUser['email']) {
             $validationRules['email'] = 'email|unique:email';
-            $dataToValidate['email'] = $email;
+            $dataToValidate['email'] = $formData['email'];
         }
-        if (!empty($password) || !empty($passwordConfirmation)) {
+        if (!empty($formData['password']) || !empty($formData['confirm_password'])) {
             $validationRules['password'] = 'min:8|max:20|confirmed:confirm_password';
             $validationRules['confirm_password'] = 'min:8|max:20';
-            $dataToValidate['password'] = $password;
-            $dataToValidate['confirm_password'] = $passwordConfirmation;
+            $dataToValidate['password'] = $formData['password'];
+            $dataToValidate['confirm_password'] = $formData['confirm_password'];
         }
-        if ($this->fileHandler->isFile($uploadedFile)) {
+        if ($this->fileHandler->isFile($formData['profile_picture'])) {
             $validationRules['profile_picture'] = 'file:0-300|image';
-            $dataToValidate['profile_picture'] = $uploadedFile;
+            $dataToValidate['profile_picture'] = $formData['profile_picture'];
         }
+        $dataToValidate['role'] = $formData['role'];
+        $isActive = $this->auth->isAdmin() ? $formData['is_active'] : $currentUser['is_active'];
         $dataToValidate['is_active'] = $isActive;
-        $dataToValidate['role'] = $role;
 
         $errors = $this->validator->validate($validationRules, $dataToValidate);
         $id = $this->request->getResourceId();
 
         if (!empty($errors)) {
-            $flattenedErrors = array_reduce($errors, 'array_merge', []);
-            foreach ($flattenedErrors as $error) {
-                $this->flash->set('error', $error);
-            }
-            $this->flash->set('status_code', '422');
-            $this->response->redirect("/users/{$id}/edit", $dataToValidate);
+            $this->handleValidationErrors($errors, "/users/{$id}/edit", $dataToValidate);
         }
 
-        $profilePictureRelativeUrl = '';
-        if ($this->fileHandler->isFile($uploadedFile)) {
-            $uniqueFileName = $this->fileHandler->upload($uploadedFile);
-            $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
+        $profilePictureRelativeUrl = $this->getAvatarPath($dataToValidate, "/users/{$id}/edit");
 
-            if ($uniqueFileName === false) {
-                $this->flash->set('error', 'Ошибка при загрузке файла. Попробуйте снова.');
-                $this->flash->set('status_code', '422');
-                $this->response->redirect("/users/{$id}/edit", $dataToValidate);
-            }
+        if ($profilePictureRelativeUrl) {
+            $currentProfilePicture = $currentUser['profile_picture'];
             if ($currentProfilePicture) {
                 if (!$this->fileHandler->delete($currentProfilePicture)) {
                     $this->logger->log('FileHandler delete() error');
                 }
             }
-            $profilePictureRelativeUrl = $this->fileHandler->getRelativeUploadDir() . $uniqueFileName;
         }
 
-        $hashedPassword = empty($password)
+        $hashedPassword = empty($formData['password'])
             ? $currentUser['hashed_password']
-            : password_hash($password, PASSWORD_DEFAULT);
+            : password_hash($formData['password'], PASSWORD_DEFAULT);
 
         if (
             $this->user->update(
                 $id,
                 [
-                    'login' => $login ?? $currentUser['login'],
-                    'email' => $email ?? $currentUser['email'],
+                    'login' => $formData['login'] ?? $currentUser['login'],
+                    'email' => $formData['email'] ?? $currentUser['email'],
                     'hashed_password' => $hashedPassword,
                     'profile_picture' => $profilePictureRelativeUrl ?: $currentUser['profile_picture'],
                     'is_active' => $isActive,
-                    'role' => $role,
+                    'role' => $formData['role'],
                 ]
             )
         ) {
-            $this->flash->set('success', "Пользователь успешно изменён");
-            $this->flash->set('status_code', '303');
-            $this->response->redirect("/users/{$id}");
+            $this->handleNoErrors('Пользователь успешно изменён', '303', "/users/{$id}");
         }
 
-        $this->flash->set('error', 'Что-то пошло не так. Попробуйте снова.');
-        $this->flash->set('status_code', '422');
-        $this->response->redirect("/users/{$id}/edit", $dataToValidate);
+        $this->logger->log('User update() error');
+        $this->handleErrors('Что-то пошло не так. Попробуйте снова.', '422', "/users/{$id}/edit", $dataToValidate);
     }
 
     public function delete(): void
