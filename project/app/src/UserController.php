@@ -13,7 +13,7 @@ class UserController extends BaseController
     private Request $request;
     private Response $response;
     private User $user;
-    private Captcha $captcha;
+    protected Captcha $captcha;
     protected Flash $flash;
     private Validator $validator;
     protected Auth $auth;
@@ -33,11 +33,6 @@ class UserController extends BaseController
         $this->auth = $params['auth'];
         $this->fileHandler = $params['fileHandler'];
         $this->logger = $params['logger'];
-    }
-
-    public function showCaptcha(): void
-    {
-        $this->captcha->createCaptcha();
     }
 
     public function showRegistrationForm(): void
@@ -268,15 +263,11 @@ class UserController extends BaseController
         $this->renderView('users/edit', $data);
     }
 
-    public function update(): void
+    private function getUpdateValidationData(array $formData, array $currentUser): array
     {
-        $currentUser = $this->getUserData();
-        $formData = $this->getEnteredFormData();
-
         $validationRules = [];
         $dataToValidate = [];
 
-        // !!! Валидировать будем только изменённые поля
         if ($formData['login'] !== $currentUser['login']) {
             $validationRules['login'] = 'string|min:3|max:20|unique:login';
             $dataToValidate['login'] = $formData['login'];
@@ -299,23 +290,27 @@ class UserController extends BaseController
         $isActive = $this->auth->isAdmin() ? $formData['is_active'] : $currentUser['is_active'];
         $dataToValidate['is_active'] = $isActive;
 
-        $errors = $this->validator->validate($validationRules, $dataToValidate);
-        $id = $this->request->getResourceId();
+        return [$validationRules, $dataToValidate];
+    }
 
-        if (!empty($errors)) {
-            $this->handleValidationErrors($errors, "/users/{$id}/edit", $dataToValidate);
-        }
-
-        $profilePictureRelativeUrl = $this->getAvatarPath($dataToValidate, "/users/{$id}/edit");
-
-        if ($profilePictureRelativeUrl) {
-            $currentProfilePicture = $currentUser['profile_picture'];
-            if ($currentProfilePicture) {
-                if (!$this->fileHandler->delete($currentProfilePicture)) {
+    private function handleAvatarDeletion(string $newAvatarPath, array $currentUser): void
+    {
+        if ($newAvatarPath) {
+            $currentAvatarPath = $currentUser['profile_picture'];
+            if ($currentAvatarPath) {
+                if (!$this->fileHandler->delete($currentAvatarPath)) {
                     $this->logger->log('FileHandler delete() error');
                 }
             }
         }
+    }
+
+    private function updateUser(array $currentUser, array $formData, array $dataToValidate): void
+    {
+        $id = $this->request->getResourceId();
+
+        $newAvatarPath = $this->getAvatarPath($dataToValidate, "/users/{$id}/edit");
+        $this->handleAvatarDeletion($newAvatarPath, $currentUser);
 
         $hashedPassword = empty($formData['password'])
             ? $currentUser['hashed_password']
@@ -328,8 +323,8 @@ class UserController extends BaseController
                     'login' => $formData['login'] ?? $currentUser['login'],
                     'email' => $formData['email'] ?? $currentUser['email'],
                     'hashed_password' => $hashedPassword,
-                    'profile_picture' => $profilePictureRelativeUrl ?: $currentUser['profile_picture'],
-                    'is_active' => $isActive,
+                    'profile_picture' => $newAvatarPath ?: $currentUser['profile_picture'],
+                    'is_active' => $dataToValidate['is_active'],
                     'role' => $formData['role'],
                 ]
             )
@@ -339,6 +334,23 @@ class UserController extends BaseController
 
         $this->logger->log('User update() error');
         $this->handleErrors('Что-то пошло не так. Попробуйте снова.', '422', "/users/{$id}/edit", $dataToValidate);
+    }
+
+    public function update(): void
+    {
+        $currentUser = $this->getUserData();
+        $formData = $this->getEnteredFormData();
+        $id = $this->request->getResourceId();
+
+        list($validationRules, $dataToValidate) = $this->getUpdateValidationData($formData, $currentUser);
+
+        $errors = $this->validator->validate($validationRules, $dataToValidate);
+
+        if (!empty($errors)) {
+            $this->handleValidationErrors($errors, "/users/{$id}/edit", $dataToValidate);
+        }
+
+        $this->updateUser($currentUser, $formData, $dataToValidate);
     }
 
     public function delete(): void
