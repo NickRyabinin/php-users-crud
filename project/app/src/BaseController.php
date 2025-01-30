@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Абстрактный класс BaseController - родительский класс для контроллеров сущностей,
+ * содержит общие методы для них методы.
+ */
+
 namespace src;
 
 abstract class BaseController
@@ -7,6 +12,7 @@ abstract class BaseController
     protected View $view;
     protected Flash $flash;
     protected Auth $auth;
+    protected Captcha $captcha;
 
     public function __construct(array $params)
     {
@@ -26,5 +32,10 @@ abstract class BaseController
             'authId' => $this->auth->getAuthId(),
             'admin' => $this->auth->isAdmin(),
         ]), $httpStatusCode);
+    }
+
+    public function showCaptcha(): void
+    {
+        $this->captcha->createCaptcha();
     }
 }
