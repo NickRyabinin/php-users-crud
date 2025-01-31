@@ -293,14 +293,11 @@ class UserController extends BaseController
         return [$validationRules, $dataToValidate];
     }
 
-    private function handleAvatarDeletion(string $newAvatarPath, array $currentUser): void
+    private function handleAvatarDeletion(string $currentAvatar): void
     {
-        if ($newAvatarPath) {
-            $currentAvatarPath = $currentUser['profile_picture'];
-            if ($currentAvatarPath) {
-                if (!$this->fileHandler->delete($currentAvatarPath)) {
-                    $this->logger->log('FileHandler delete() error');
-                }
+        if ($currentAvatar) {
+            if (!$this->fileHandler->delete($currentAvatar)) {
+                $this->logger->log('FileHandler delete() error');
             }
         }
     }
@@ -310,7 +307,10 @@ class UserController extends BaseController
         $id = $this->request->getResourceId();
 
         $newAvatarPath = $this->getAvatarPath($dataToValidate, "/users/{$id}/edit");
-        $this->handleAvatarDeletion($newAvatarPath, $currentUser);
+
+        if ($newAvatarPath) {
+            $this->handleAvatarDeletion($currentUser['profile_picture']);
+        }
 
         $hashedPassword = empty($formData['password'])
             ? $currentUser['hashed_password']
@@ -356,28 +356,24 @@ class UserController extends BaseController
     public function delete(): void
     {
         $id = $this->request->getResourceId();
+        $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
         $deleteConfirmation = $this->request->getFormData('delete_confirmation');
 
-        if ($id && $deleteConfirmation) {
-            $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
-
-            if ($this->user->destroy($id)) {
-                $this->flash->set('success', "Пользователь успешно удалён!");
-                if ($currentProfilePicture) {
-                    if (!$this->fileHandler->delete($currentProfilePicture)) {
-                        $this->logger->log('FileHandler delete() error');
-                    }
-                }
-                if ($id === $this->auth->getAuthId()) {
-                    $this->response->redirect('/users/logout');
-                }
-                $this->response->redirect('/users');
-            }
-            $this->flash->set('error', 'Что-то пошло не так. Попробуйте снова.');
-            $this->response->redirect('/users');
+        if (!($id && $deleteConfirmation)) {
+            $this->handleErrors('Подтвердите действие, отметив чекбокс', '400', '/users');
         }
-        $this->flash->set('error', "Подтвердите действие, отметив чекбокс");
-        $this->response->redirect('/users');
+
+        if (!$this->user->destroy($id)) {
+            $this->logger->log('User delete() error');
+            $this->handleErrors('Что-то пошло не так. Попробуйте снова.', '422', '/users');
+        }
+
+        $this->handleAvatarDeletion($currentProfilePicture);
+
+        if ($id === $this->auth->getAuthId()) {
+            $this->handleNoErrors('Пользователь успешно удалён!', '200', '/users/logout');
+        }
+        $this->handleNoErrors('Пользователь успешно удалён!', '200', '/users');
     }
 
     private function getUserData(): array
