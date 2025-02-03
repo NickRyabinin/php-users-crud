@@ -103,8 +103,9 @@ class UserController extends BaseController
     private function getAvatarPath(array $formData, string $redirectUrl): string
     {
         $profilePictureRelativeUrl = '';
-        if ($this->fileHandler->isFile($formData['profile_picture'])) {
-            $uniqueFileName = $this->fileHandler->upload($formData['profile_picture']);
+        $profilePicture = isset($formData['profile_picture']) ? $formData['profile_picture'] : [];
+        if ($this->fileHandler->isFile($profilePicture)) {
+            $uniqueFileName = $this->fileHandler->upload($profilePicture);
             if ($uniqueFileName === false) {
                 $this->logger->log('FileHandler upload() error');
                 $this->handleErrors('Ошибка при загрузке файла. Попробуйте снова.', '422', $redirectUrl, $formData);
