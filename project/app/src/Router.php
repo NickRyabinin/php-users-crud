@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Роутер.
+ * Загружает существующие маршруты и контроллеры в общий массив, а затем вызывает
+ * нужный метод определённого контроллера, сопоставляя загруженные данные с введённым
+ * посетителем запросом.
+ */
+
 namespace src;
 
 class Router
@@ -14,18 +21,15 @@ class Router
         $this->authMiddleware = $authMiddleware;
     }
 
-    // Метод для добавления маршрутов
     public function addRoute(string $method, string $route, array $routeData): void
     {
         $this->routes[strtoupper($method)][$route] = $routeData;
     }
 
-    // Метод для загрузки маршрутов из массива
     public function loadRoutes(array $routes, array $controllers): void
     {
         foreach ($routes as $method => $routeArray) {
             foreach ($routeArray as $route => $routeData) {
-                // Извлекаем контроллер, действие и метаданные (если есть)
                 $controllerName = $routeData[0];
                 $action = $routeData[1];
                 $meta = isset($routeData[2]) ? $routeData[2] : [];
@@ -37,39 +41,53 @@ class Router
         }
     }
 
-    // Метод для обработки маршрутов
     public function route(): void
     {
-        $requestMethod = $this->request->getHttpMethod();
-
-        // Проверяем наличие скрытого поля для метода (для правильной обработки PUT и DELETE)
-        $hiddenRequestMethod = $this->request->getFormData('http_method');
-        if ($requestMethod === 'POST' && $hiddenRequestMethod) {
-            $requestMethod = strtoupper($hiddenRequestMethod);
-        }
-
+        $requestMethod = $this->getRequestMethod();
         $requestPath = $this->request->getParsedUrl()['path'];
+
         if (isset($this->routes[$requestMethod])) {
             foreach ($this->routes[$requestMethod] as $route => $routeData) {
-                // Проверка маршрута с параметрами
-                if (preg_match('#^' . str_replace(['{id}'], ['(\d+)'], $route) . '$#', $requestPath, $matches)) {
-                    array_shift($matches); // Удаляем первый элемент (полное совпадение)
-                    [$controller, $action, $meta] = $routeData;
-
-                    if (isset($meta['auth']) && $meta['auth'] === true) {
-                        $this->authMiddleware->checkAuth();
-                    }
-
-                    if (isset($meta['admin']) && $meta['admin'] === true) {
-                        $this->authMiddleware->checkAdmin();
-                    }
-
-                    call_user_func_array([$controller, $action], $matches);
+                if ($this->matchRoute($route, $requestPath, $routeData)) {
                     return;
                 }
             }
         }
-        // Если маршрут не найден
+
+        $this->handleRouteNotFound();
+    }
+
+    private function getRequestMethod(): string
+    {
+        $requestMethod = $this->request->getHttpMethod();
+        $hiddenRequestMethod = $this->request->getFormData('http_method');
+        return ($requestMethod === 'POST' && $hiddenRequestMethod) ? strtoupper($hiddenRequestMethod) : $requestMethod;
+    }
+
+    private function matchRoute(string $route, string $requestPath, array $routeData): bool
+    {
+        if (preg_match('#^' . str_replace(['{id}'], ['(\d+)'], $route) . '$#', $requestPath, $matches)) {
+            array_shift($matches);
+            [$controller, $action, $meta] = $routeData;
+            $this->checkVisitorPermissions($meta);
+            call_user_func_array([$controller, $action], $matches);
+            return true;
+        }
+        return false;
+    }
+
+    private function checkVisitorPermissions(array $meta): void
+    {
+        if (isset($meta['auth']) && $meta['auth'] === true) {
+            $this->authMiddleware->checkAuth();
+        }
+        if (isset($meta['admin']) && $meta['admin'] === true) {
+            $this->authMiddleware->checkAdmin();
+        }
+    }
+
+    private function handleRouteNotFound(): void
+    {
         http_response_code(404);
         echo json_encode(['message' => 'Route not found']);
     }
