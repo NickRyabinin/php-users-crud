@@ -10,6 +10,13 @@ namespace src;
 
 class Flash
 {
+    /**
+     * Сохраняет сообщение в сессии.
+     *
+     * @param string $key Ключ для сообщения
+     * @param string $message Сообщение для сохранения
+     * @return void
+     */
     public function set(string $key, string $message): void
     {
         if (!isset($_SESSION['flash'][$key])) {
@@ -19,20 +26,49 @@ class Flash
         $_SESSION['flash'][$key][] = $message;
     }
 
-    public function get(string $key = ""): array
+    /**
+     * Извлекает сообщения из сессии.
+     *
+     * @param string $key Ключ для извлечения сообщений
+     * @return array<string> Массив сообщений
+     */
+    public function get(string $key = ''): array
     {
-        $flash = [];
-        if (isset($_SESSION['flash'])) {
-            if ($key) {
-                if (isset($_SESSION['flash'][$key])) {
-                    $flash = $_SESSION['flash'][$key];
-                    unset($_SESSION['flash'][$key]);
-                }
-            } else {
-                $flash = $_SESSION['flash'];
-                unset($_SESSION['flash']);
-            }
+        if (!isset($_SESSION['flash'])) {
+            return [];
         }
+
+        return $key ? $this->getFlashByKey($key) : $this->getAllFlash();
+    }
+
+    /**
+     * Извлекает сообщения по ключу и очищает их из сессии.
+     *
+     * @param string $key Ключ для извлечения сообщений
+     * @return array<string> Массив сообщений
+     */
+    private function getFlashByKey(string $key): array
+    {
+        if (!isset($_SESSION['flash'][$key])) {
+            return [];
+        }
+
+        $flash = $_SESSION['flash'][$key];
+        unset($_SESSION['flash'][$key]);
+
+        return $flash;
+    }
+
+    /**
+     * Извлекает все сообщения и очищает их из сессии.
+     *
+     * @return array<string> Массив сообщений.
+     */
+    private function getAllFlash(): array
+    {
+        $flash = $_SESSION['flash'];
+        unset($_SESSION['flash']);
+
         return $flash;
     }
 }
