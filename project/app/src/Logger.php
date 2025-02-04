@@ -17,7 +17,10 @@ class Logger
 
     public function log(string $message): void
     {
-        error_log($message . PHP_EOL, 3, $this->logFile);
+        $dateTime = date('d/m/Y H:i:s');
+        $formattedMessage = "[$dateTime] $message";
+
+        error_log($formattedMessage . PHP_EOL, 3, $this->logFile);
         return;
     }
 }
