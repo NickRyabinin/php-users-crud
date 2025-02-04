@@ -47,10 +47,17 @@ class Router
         $requestPath = $this->request->getParsedUrl()['path'];
 
         if (isset($this->routes[$requestMethod])) {
-            foreach ($this->routes[$requestMethod] as $route => $routeData) {
-                if ($this->matchRoute($route, $requestPath, $routeData)) {
-                    return;
-                }
+            $this->processRoutes($requestMethod, $requestPath);
+        } else {
+            $this->handleRouteNotFound();
+        }
+    }
+
+    private function processRoutes(string $requestMethod, string $requestPath): void
+    {
+        foreach ($this->routes[$requestMethod] as $route => $routeData) {
+            if ($this->matchRoute($route, $requestPath, $routeData)) {
+                return;
             }
         }
 
