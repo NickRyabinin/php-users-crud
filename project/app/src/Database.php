@@ -48,32 +48,52 @@ final class Database
         return $pdo;
     }
 
-    private function getDatabaseConfig(string $envFilePath): array
+    /**
+     * @return array<string, mixed>
+     */
+    private function parseEnvVar(): array
+    {
+        $databaseUrl = parse_url((string) getenv('DATABASE_URL'));
+
+        return is_array($databaseUrl) ? $databaseUrl : [];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function parseEnvFile(string $envFilePath): array
     {
         $databaseUrl = [];
-
-        if (file_exists($envFilePath)) {
-            $envContent = file_get_contents($envFilePath);
-            $lines = explode(PHP_EOL, $envContent);
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if ($line === '' || strpos($line, '#') === 0) {
-                    continue;
-                }
-                list($key, $value) = explode('=', $line, 2);
-                $databaseUrl[trim($key)] = trim($value);
+        $envContent = (string) file_get_contents($envFilePath);
+        $lines = explode(PHP_EOL, $envContent);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || strpos($line, '#') === 0) {
+                continue;
             }
-        } else {
-            $databaseUrl = parse_url((string) getenv('DATABASE_URL'));
+            list($key, $value) = explode('=', $line, 2);
+            $databaseUrl[trim($key)] = trim($value);
         }
 
         return $databaseUrl;
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private function getDatabaseConfig(string $envFilePath): array
+    {
+        if (file_exists($envFilePath)) {
+            return $this->parseEnvFile($envFilePath);
+        }
+
+        return $this->parseEnvVar();
+    }
+
     public function migrate(\PDO $pdo, string $migrationPath): void
     {
         try {
-            $migration = file_get_contents($migrationPath);
+            $migration = (string) file_get_contents($migrationPath);
             $statements = explode(PHP_EOL . PHP_EOL, $migration);
             foreach ($statements as $statement) {
                 $statement = trim($statement);
