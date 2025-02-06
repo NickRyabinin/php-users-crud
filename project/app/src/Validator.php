@@ -9,10 +9,12 @@ namespace src;
 class Validator
 {
     private User $model;
+    private FileHandler $fileHandler;
 
-    public function __construct(User $model)
+    public function __construct(User $model, FileHandler $fileHandler)
     {
         $this->model = $model;
+        $this->fileHandler = $fileHandler;
     }
 
     public function validate(array $validationRules, array $data): array
@@ -35,7 +37,7 @@ class Validator
     {
         if (preg_match('/^(\w+)(?::(.+))?$/', $rule, $matches)) {
             $ruleName = $matches[1];
-            $ruleParam = $matches[2] ?? null;
+            $ruleParam = $matches[2] ?? '';
 
             return match ($ruleName) {
                 'required' => $this->validateRequired($field, $value),
@@ -54,12 +56,12 @@ class Validator
         return [];
     }
 
-    private function validateRequired(string $field, $value): array
+    private function validateRequired(string $field, mixed $value): array
     {
         return empty($value) ? ["Поле {$field} обязательно к заполнению."] : [];
     }
 
-    private function validateString(string $field, $value): array
+    private function validateString(string $field, mixed $value): array
     {
         return !is_string($value) ? ["Поле {$field} должно быть строкой."] : [];
     }
@@ -71,7 +73,7 @@ class Validator
             : [];
     }
 
-    private function validateUnique(string $field, $value, $ruleParam): array
+    private function validateUnique(string $field, mixed $value, string $ruleParam): array
     {
         if ($ruleParam) {
             $existingValue = $this->model->getValue('user', $ruleParam, $ruleParam, $value);
@@ -80,41 +82,44 @@ class Validator
         return [];
     }
 
-    private function validateMin(string $field, $value, $ruleParam): array
+    private function validateMin(string $field, mixed $value, string $ruleParam): array
     {
         return ($ruleParam && mb_strlen($value) < (int)$ruleParam)
             ? ["Поле {$field} должно содержать минимум {$ruleParam} символов."]
             : [];
     }
 
-    private function validateMax(string $field, $value, $ruleParam): array
+    private function validateMax(string $field, mixed $value, string $ruleParam): array
     {
         return ($ruleParam && mb_strlen($value) > (int)$ruleParam)
             ? ["Поле {$field} должно содержать максимум {$ruleParam} символов."]
             : [];
     }
 
-    private function validateFile(string $field, $value, $ruleParam): array
+    private function validateFile(string $field, mixed $value, string $ruleParam): array
     {
         $errors = [];
-        if ($ruleParam) {
-            list($minSize, $maxSize) = array_map('intval', explode('-', $ruleParam));
-            if (!is_array($value) || $value['error'] !== UPLOAD_ERR_OK) {
-                return $minSize > 0 ? ["Файл {$field} не был загружен на сервер."] : [];
-            }
 
-            $fileSize = filesize($value['tmp_name']);
-            if ($fileSize < $minSize * 1024) {
-                $errors[] = "Размер файла {$field} должен быть не менее {$minSize} КБ.";
-            }
-            if ($fileSize > $maxSize * 1024) {
-                $errors[] = "Размер файла {$field} не должен превышать {$maxSize} КБ.";
-            }
+        if (!$ruleParam) {
+            return $this->fileHandler->isFile($value) ? $errors : ["В поле {$field} должен быть указан файл."];
         }
+
+        $sizes = array_map('intval', explode('-', $ruleParam));
+        $minSize = $sizes[0];
+        $maxSize = isset($sizes[1]) ? $sizes[1] : null;
+        $fileSize = $this->fileHandler->isFile($value) ? filesize($value['tmp_name']) : -1;
+
+        if ($minSize > 0 && $fileSize < $minSize * 1024) {
+            $errors[] = "Размер файла {$field} должен быть не менее {$minSize} КБ.";
+        }
+        if ($maxSize !== null && $fileSize > $maxSize * 1024) {
+            $errors[] = "Размер файла {$field} не должен превышать {$maxSize} КБ.";
+        }
+
         return $errors;
     }
 
-    private function validateImage(string $field, $value): array
+    private function validateImage(string $field, mixed $value): array
     {
         if (!is_array($value) || $value['error'] !== UPLOAD_ERR_OK) {
             return [];
@@ -125,7 +130,7 @@ class Validator
             : [];
     }
 
-    private function validateCurrentPassword($value, array $data, $ruleParam): array
+    private function validateCurrentPassword(mixed $value, array $data, string $ruleParam): array
     {
         if ($ruleParam) {
             $login = $data[$ruleParam] ?? null;
@@ -139,7 +144,7 @@ class Validator
         return [];
     }
 
-    private function validateConfirmed(string $field, $value, array $data, $ruleParam): array
+    private function validateConfirmed(string $field, mixed $value, array $data, string $ruleParam): array
     {
         if ($ruleParam) {
             $confirmationValue = $data[$ruleParam] ?? null;
