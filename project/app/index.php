@@ -66,8 +66,8 @@ $authMiddleware = new AuthMiddleware($auth, $response);
 $router = new Router($request, $authMiddleware);
 $view = new View(TEMPLATES_PATH);
 $user = new User($pdo, $logger);
-$validator = new Validator($user);
 $fileHandler = new FileHandler(SERVER_UPLOAD_DIR);
+$validator = new Validator($user, $fileHandler);
 $userController = new UserController(
     [
         'request' => $request,
