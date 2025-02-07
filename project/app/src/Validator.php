@@ -17,19 +17,46 @@ class Validator
         $this->fileHandler = $fileHandler;
     }
 
+    /**
+     * @param array<string, string> $validationRules Массив правил валидации
+     * @param array<string, mixed> $data Массив данных для валидации
+     * @return array<array<string>>
+     */
     public function validate(array $validationRules, array $data): array
     {
         $errors = [];
+
         foreach ($validationRules as $field => $rules) {
             $value = $data[$field] ?? null;
-            $rulesArray = explode('|', $rules);
-            foreach ($rulesArray as $rule) {
-                $fieldErrors = $this->applyRule($field, $value, $rule, $data);
-                if (!empty($fieldErrors)) {
-                    $errors[$field] = array_merge($errors[$field] ?? [], $fieldErrors);
-                }
+            $fieldErrors = $this->validateField($field, $value, $rules, $data);
+
+            if (!empty($fieldErrors)) {
+                $errors[$field] = array_merge($errors[$field] ?? [], $fieldErrors);
             }
         }
+
+        return $errors;
+    }
+
+    /**
+     * Валидирует одно поле из массива данных для валидации.
+     * Возвращает одномерный массив сообщений об ошибках для этого поля.
+     *
+     * @param array<string, mixed> $data Массив данных для валидации
+     * @return array<string>
+     */
+    private function validateField(string $field, mixed $value, string $rules, array $data): array
+    {
+        $errors = [];
+        $rulesArray = explode('|', $rules);
+
+        foreach ($rulesArray as $rule) {
+            $fieldErrors = $this->applyRule($field, $value, $rule, $data);
+            if (!empty($fieldErrors)) {
+                $errors = array_merge($errors, $fieldErrors);
+            }
+        }
+
         return $errors;
     }
 
@@ -121,7 +148,7 @@ class Validator
 
     private function validateImage(string $field, mixed $value): array
     {
-        if (!is_array($value) || $value['error'] !== UPLOAD_ERR_OK) {
+        if (!$this->fileHandler->isFile($value)) {
             return [];
         }
         $fileType = mime_content_type($value['tmp_name']);
