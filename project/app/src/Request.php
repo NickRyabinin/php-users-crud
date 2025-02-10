@@ -8,8 +8,8 @@ namespace src;
 
 class Request
 {
-    private $data;
-    private $files;
+    private array $data;
+    private array $files;
 
     public function __construct()
     {
@@ -47,7 +47,7 @@ class Request
 
         // id должен быть числом больше 0
         if ($id !== '' && preg_match('/^[1-9]\d*$/', $id)) {
-            return (int)$id;
+            return (int) $id;
         }
 
         return null;
@@ -56,17 +56,11 @@ class Request
     public function getPage(): int
     {
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
-        return (preg_match('/^[1-9]\d*$/', $page)) ? (int)$page : 1;
+        return (preg_match('/^[1-9]\d*$/', $page)) ? (int) $page : 1;
     }
-/*
-    public function getResource(string $parent = ''): string
+
+    public function getQueryParam(string $key, mixed $default = null): mixed
     {
-        if ($parent) {
-            $resource = $this->getRequest()[0];
-        } else {
-            $resource = isset($this->getRequest()[2]) ? $this->getRequest()[2] : $this->getRequest()[0];
-        }
-        return $this->sanitize($this->validate($resource));
+        return isset($_GET[$key]) ? htmlspecialchars($_GET[$key], ENT_QUOTES, 'UTF-8') : $default;
     }
-*/
 }
