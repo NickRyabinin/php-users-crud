@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Класс User - модель сущности 'User'.
+ * Коммуницирует с БД, выполняя стандартные CRUD-операции.
+ */
+
 namespace src;
 
 class User
@@ -38,15 +43,31 @@ class User
         return $this->entity;
     }
 
-    public function index(int $page = 1): array
+    public function index(int $page = 1, string $searchLogin = '', string $searchEmail = ''): array
     {
         $offset = ($page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
-        $query = "SELECT {$columns} FROM {$this->entity}s ORDER BY id LIMIT 10 OFFSET {$offset}";
+
+        $query = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
+        $params = [];
+
+        if ($searchLogin) {
+            $query .= " AND login LIKE :login";
+            $params[':login'] = "%{$searchLogin}%";
+        }
+
+        if ($searchEmail) {
+            $query .= " AND email LIKE :email";
+            $params[':email'] = "%{$searchEmail}%";
+        }
+
+        $query .= " ORDER BY id LIMIT 10 OFFSET {$offset}";
+
         $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
+        $stmt->execute($params);
+
         $result = [
-            'total' => $this->getTotalRecords(),
+            'total' => $this->getTotalRecords($searchLogin, $searchEmail),
             'offset' => $offset,
             'limit' => 10,
             'items' => []
@@ -166,11 +187,23 @@ class User
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
     }
 
-    private function getTotalRecords(): int
+    private function getTotalRecords(string $searchLogin = '', string $searchEmail = ''): int
     {
-        $query = "SELECT COUNT(*) FROM {$this->entity}s";
+        $query = "SELECT COUNT(*) FROM {$this->entity}s WHERE 1=1";
+        $params = [];
+
+        if ($searchLogin) {
+            $query .= " AND login LIKE :login";
+            $params[':login'] = "%{$searchLogin}%";
+        }
+
+        if ($searchEmail) {
+            $query .= " AND email LIKE :email";
+            $params[':email'] = "%{$searchEmail}%";
+        }
+
         $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchColumn();
     }
 
