@@ -220,7 +220,10 @@ class UserController extends BaseController
     public function index(): void
     {
         $currentPage = $this->request->getPage();
-        $usersData = $this->user->index($currentPage);
+        $searchLogin = $this->request->getQueryParam('search_login', '');
+        $searchEmail = $this->request->getQueryParam('search_email', '');
+
+        $usersData = $this->user->index($currentPage, $searchLogin, $searchEmail);
         $users = $usersData['items'];
         $totalRecords = $usersData['total'];
         $limit = $usersData['limit'];
