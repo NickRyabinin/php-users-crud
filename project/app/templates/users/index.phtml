@@ -1,13 +1,32 @@
 <div class="container">
   <h2>Пользователи</h2>
   <div>
+    <form action="/users" method="get" class="search-form">
+      <input
+        type="text"
+        name="search_login"
+        placeholder="Поиск по логину"
+        value="<?= htmlspecialchars($_GET['search_login'] ?? '') ?>"
+        maxlength="254"
+      >
+      <input
+        type="text"
+        name="search_email"
+        placeholder="Поиск по емайл"
+        value="<?= htmlspecialchars($_GET['search_email'] ?? '') ?>"
+        maxlength="254"
+      >
+      <button type="submit">Поиск</button>
+    </form>
+  </div>
+  <div>
     <div class="button-container">
       Всего записей: <?= $totalRecords ?>
       <button><a href="/users/new">Создать</a></button>
     </div>
     <table>
       <thead>
-      <tr>
+        <tr>
           <th>ИД</th>
           <th>Аватар</th>
           <th>Логин</th>
