@@ -222,8 +222,10 @@ class UserController extends BaseController
         $currentPage = $this->request->getPage();
         $searchLogin = $this->request->getQueryParam('search_login', '');
         $searchEmail = $this->request->getQueryParam('search_email', '');
+        $searchLastLogin = $this->request->getQueryParam('search_last_login', '');
+        $searchCreatedAt = $this->request->getQueryParam('search_created_at', '');
 
-        $usersData = $this->user->index($currentPage, $searchLogin, $searchEmail);
+        $usersData = $this->user->index($currentPage, $searchLogin, $searchEmail, $searchLastLogin, $searchCreatedAt);
         $users = $usersData['items'];
         $totalRecords = $usersData['total'];
         $limit = $usersData['limit'];
