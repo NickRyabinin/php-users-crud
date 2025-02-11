@@ -2,21 +2,43 @@
   <h2>Пользователи</h2>
   <div>
     <form action="/users" method="get" class="search-form">
+      <div class="search-row">
+        <input
+          type="text"
+          name="search_login"
+          placeholder="Поиск по логину"
+          value="<?= htmlspecialchars($_GET['search_login'] ?? '') ?>"
+          maxlength="254"
+        >
+        <input
+          type="text"
+          name="search_email"
+          placeholder="Поиск по емайл"
+          value="<?= htmlspecialchars($_GET['search_email'] ?? '') ?>"
+          maxlength="254"
+        >
+      </div>
+      <div class="search-row">
+        <label for="search_last_login">Дата последнего посещения:</label>
+        <label for="search_created_at">Дата регистрации:</label>
+      </div>
+      <div class="search-row">
       <input
-        type="text"
-        name="search_login"
-        placeholder="Поиск по логину"
-        value="<?= htmlspecialchars($_GET['search_login'] ?? '') ?>"
-        maxlength="254"
-      >
-      <input
-        type="text"
-        name="search_email"
-        placeholder="Поиск по емайл"
-        value="<?= htmlspecialchars($_GET['search_email'] ?? '') ?>"
-        maxlength="254"
-      >
-      <button type="submit">Поиск</button>
+          type="date"
+          id="search_last_login"
+          name="search_last_login"
+          value="<?= htmlspecialchars($_GET['search_last_login'] ?? '') ?>"
+        >
+        <input
+          type="date"
+          id="search_created_at"
+          name="search_created_at"
+          value="<?= htmlspecialchars($_GET['search_created_at'] ?? '') ?>"
+        >
+      </div>
+      <div class="search-row button-row">
+        <button type="submit">Поиск</button>
+      </div>
     </form>
   </div>
   <div>
