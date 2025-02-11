@@ -43,11 +43,15 @@ class User
         return $this->entity;
     }
 
-    public function index(int $page = 1, string $searchLogin = '', string $searchEmail = ''): array
-    {
+    public function index(
+        int $page = 1,
+        string $searchLogin = '',
+        string $searchEmail = '',
+        string $searchLastLogin = '',
+        string $searchCreatedAt = ''
+    ): array {
         $offset = ($page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
-
         $query = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
         $params = [];
 
@@ -61,13 +65,23 @@ class User
             $params[':email'] = "%{$searchEmail}%";
         }
 
-        $query .= " ORDER BY id LIMIT 10 OFFSET {$offset}";
+        if ($searchLastLogin) {
+            $query .= " AND last_login >= :last_login_start AND last_login < :last_login_end";
+            $params[':last_login_start'] = $searchLastLogin . ' 00:00:00';
+            $params[':last_login_end'] = $searchLastLogin . ' 23:59:59';
+        }
 
+        if ($searchCreatedAt) {
+            $query .= " AND created_at >= :created_at_start AND created_at < :created_at_end";
+            $params[':created_at_start'] = $searchCreatedAt . ' 00:00:00';
+            $params[':created_at_end'] = $searchCreatedAt . ' 23:59:59';
+        }
+
+        $query .= " ORDER BY id LIMIT 10 OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
-
         $result = [
-            'total' => $this->getTotalRecords($searchLogin, $searchEmail),
+            'total' => $this->getTotalRecords($searchLogin, $searchEmail, $searchLastLogin, $searchCreatedAt),
             'offset' => $offset,
             'limit' => 10,
             'items' => []
@@ -187,8 +201,12 @@ class User
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
     }
 
-    private function getTotalRecords(string $searchLogin = '', string $searchEmail = ''): int
-    {
+    private function getTotalRecords(
+        string $searchLogin = '',
+        string $searchEmail = '',
+        string $searchLastLogin = '',
+        string $searchCreatedAt = ''
+    ): int {
         $query = "SELECT COUNT(*) FROM {$this->entity}s WHERE 1=1";
         $params = [];
 
@@ -200,6 +218,18 @@ class User
         if ($searchEmail) {
             $query .= " AND email LIKE :email";
             $params[':email'] = "%{$searchEmail}%";
+        }
+
+        if ($searchLastLogin) {
+            $query .= " AND last_login >= :last_login_start AND last_login < :last_login_end";
+            $params[':last_login_start'] = $searchLastLogin . ' 00:00:00';
+            $params[':last_login_end'] = $searchLastLogin . ' 23:59:59';
+        }
+
+        if ($searchCreatedAt) {
+            $query .= " AND created_at >= :created_at_start AND created_at < :created_at_end";
+            $params[':created_at_start'] = $searchCreatedAt . ' 00:00:00';
+            $params[':created_at_end'] = $searchCreatedAt . ' 23:59:59';
         }
 
         $stmt = $this->pdo->prepare($query);
