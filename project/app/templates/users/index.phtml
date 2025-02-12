@@ -36,6 +36,22 @@
           value="<?= htmlspecialchars($_GET['search_created_at'] ?? '') ?>"
         >
       </div>
+      <div class="search-row">
+        <label for="search_role">Роль:</label>
+        <label for="search_is_active">Статус:</label>
+      </div>
+      <div class="search-row">
+        <select name="search_role" id="search_role">
+          <option value=""></option>
+          <option value="user">user</option>
+          <option value="admin">admin</option>
+        </select>
+        <select name="search_is_active" id="search_is_active">
+          <option value=""></option>
+          <option value="true">активен</option>
+          <option value="false">неактивен</option>
+        </select>
+      </div>
       <div class="search-row button-row">
         <button type="submit">Поиск</button>
       </div>
