@@ -2,6 +2,16 @@
   --font-large: 20px;
   --font-normal: 16px;
   --font-small: 12px;
+
+  --color-font-main: aqua;
+  --color-font-secondary: lightblue;
+  --color-font-button: white;
+  --color-font-links: lightgreen;
+  --color-background-main: #757474;
+  --color-background-secondary: #111;
+  --color-background-button: #007bff;
+  --color-hover-button: #0056b3;
+  --color-border: #ccc;
 }
 
 @font-face {
@@ -16,8 +26,8 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  background-color: #757474;
-  color: aqua;
+  background-color: var(--color-background-main);
+  color: var(--color-font-main);
 }
 
 nav {
@@ -25,13 +35,13 @@ nav {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #111;
+  background-color: var(--color-background-secondary);
   padding: 10px;
   z-index: 1000;
 }
 
 a {
-  color: lightgreen;
+  color: var(--color-font-links);
   text-decoration: none;
 }
 
@@ -42,7 +52,7 @@ table {
 
 td, th {
   max-width: 200px;
-  border: 1px solid wheat;
+  border: 1px solid var(--color-border);
   padding: 5px;
   word-break: break-all;
 }
@@ -51,7 +61,7 @@ td, th {
   display: flex;
   list-style: none;
   font-size: var(--font-large);
-  color: lightgreen;
+  color: var(--color-font-links);
   margin: 0;
   padding: 0;
 }
@@ -78,7 +88,7 @@ li {
 }
 
 .card {
-  background-color: #111;
+  background-color: var(--color-background-secondary);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px #0000001A;
@@ -111,15 +121,15 @@ input[type="file"],
 select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   box-sizing: border-box;
-  background-color: #757474;
-  color: white;
+  background-color: var(--color-background-main);
+  color: var(--color-font-button);
 }
 
 input::placeholder {
-  color: lightblue;
+  color: var(--color-font-secondary);
 }
 
 .captcha-group input {
@@ -130,19 +140,19 @@ button {
   width: 150px;
   padding: 10px;
   margin: 5px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--color-background-button);
+  color: var(--color-font-button);
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 button a {
-  color: white;
+  color: var(--color-font-button);
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: var(--color-hover-button);
 }
 
 .button-container {
@@ -240,31 +250,32 @@ img {
 
 .search-row label {
   margin-bottom: 5px;
-  color: lightblue;
+  color: var(--color-font-secondary);
 }
 
 .search-row input[type="text"],
-.search-row input[type="date"] {
+.search-row input[type="date"],
+.search-row select {
   width: 48%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   box-sizing: border-box;
-  background-color: #757474;
-  color: white;
+  background-color: var(--color-background-main);
+  color: var(--color-font-button);
 }
 
 .search-row button {
   width: 150px;
   padding: 10px;
   margin-top: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--color-background-button);
+  color: var(--color-font-button);
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .search-row button:hover {
-  background-color: #0056b3;
+  background-color: var(--color-hover-button);
 }
