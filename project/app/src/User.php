@@ -43,45 +43,45 @@ class User
         return $this->entity;
     }
 
-    public function index(
-        int $page = 1,
-        string $searchLogin = '',
-        string $searchEmail = '',
-        string $searchLastLogin = '',
-        string $searchCreatedAt = ''
-    ): array {
+    public function index(int $page = 1, array $searchParams = []): array
+    {
         $offset = ($page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
         $query = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
         $params = [];
 
-        if ($searchLogin) {
+        if (!empty($searchParams['login'])) {
             $query .= " AND login LIKE :login";
-            $params[':login'] = "%{$searchLogin}%";
+            $params[':login'] = "%{$searchParams['login']}%";
         }
-
-        if ($searchEmail) {
+        if (!empty($searchParams['email'])) {
             $query .= " AND email LIKE :email";
-            $params[':email'] = "%{$searchEmail}%";
+            $params[':email'] = "%{$searchParams['email']}%";
         }
-
-        if ($searchLastLogin) {
+        if (!empty($searchParams['last_login'])) {
             $query .= " AND last_login >= :last_login_start AND last_login < :last_login_end";
-            $params[':last_login_start'] = $searchLastLogin . ' 00:00:00';
-            $params[':last_login_end'] = $searchLastLogin . ' 23:59:59';
+            $params[':last_login_start'] = $searchParams['last_login'] . ' 00:00:00';
+            $params[':last_login_end'] = $searchParams['last_login'] . ' 23:59:59';
         }
-
-        if ($searchCreatedAt) {
+        if (!empty($searchParams['created_at'])) {
             $query .= " AND created_at >= :created_at_start AND created_at < :created_at_end";
-            $params[':created_at_start'] = $searchCreatedAt . ' 00:00:00';
-            $params[':created_at_end'] = $searchCreatedAt . ' 23:59:59';
+            $params[':created_at_start'] = $searchParams['created_at'] . ' 00:00:00';
+            $params[':created_at_end'] = $searchParams['created_at'] . ' 23:59:59';
+        }
+        if (!empty($searchParams['role'])) {
+            $query .= " AND role = :role";
+            $params[':role'] = $searchParams['role'];
+        }
+        if (!empty($searchParams['is_active'])) {
+            $query .= " AND is_active = :is_active";
+            $params[':is_active'] = $searchParams['is_active'];
         }
 
         $query .= " ORDER BY id LIMIT 10 OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
         $result = [
-            'total' => $this->getTotalRecords($searchLogin, $searchEmail, $searchLastLogin, $searchCreatedAt),
+            'total' => $this->getTotalRecords($searchParams),
             'offset' => $offset,
             'limit' => 10,
             'items' => []
@@ -201,35 +201,36 @@ class User
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
     }
 
-    private function getTotalRecords(
-        string $searchLogin = '',
-        string $searchEmail = '',
-        string $searchLastLogin = '',
-        string $searchCreatedAt = ''
-    ): int {
+    private function getTotalRecords(array $searchParams): int
+    {
         $query = "SELECT COUNT(*) FROM {$this->entity}s WHERE 1=1";
         $params = [];
 
-        if ($searchLogin) {
+        if (!empty($searchParams['login'])) {
             $query .= " AND login LIKE :login";
-            $params[':login'] = "%{$searchLogin}%";
+            $params[':login'] = "%{$searchParams['login']}%";
         }
-
-        if ($searchEmail) {
+        if (!empty($searchParams['email'])) {
             $query .= " AND email LIKE :email";
-            $params[':email'] = "%{$searchEmail}%";
+            $params[':email'] = "%{$searchParams['email']}%";
         }
-
-        if ($searchLastLogin) {
+        if (!empty($searchParams['last_login'])) {
             $query .= " AND last_login >= :last_login_start AND last_login < :last_login_end";
-            $params[':last_login_start'] = $searchLastLogin . ' 00:00:00';
-            $params[':last_login_end'] = $searchLastLogin . ' 23:59:59';
+            $params[':last_login_start'] = $searchParams['last_login'] . ' 00:00:00';
+            $params[':last_login_end'] = $searchParams['last_login'] . ' 23:59:59';
         }
-
-        if ($searchCreatedAt) {
+        if (!empty($searchParams['created_at'])) {
             $query .= " AND created_at >= :created_at_start AND created_at < :created_at_end";
-            $params[':created_at_start'] = $searchCreatedAt . ' 00:00:00';
-            $params[':created_at_end'] = $searchCreatedAt . ' 23:59:59';
+            $params[':created_at_start'] = $searchParams['created_at'] . ' 00:00:00';
+            $params[':created_at_end'] = $searchParams['created_at'] . ' 23:59:59';
+        }
+        if (!empty($searchParams['role'])) {
+            $query .= " AND role = :role";
+            $params[':role'] = $searchParams['role'];
+        }
+        if (!empty($searchParams['is_active'])) {
+            $query .= " AND is_active = :is_active";
+            $params[':is_active'] = $searchParams['is_active'];
         }
 
         $stmt = $this->pdo->prepare($query);
