@@ -220,18 +220,21 @@ class UserController extends BaseController
     public function index(): void
     {
         $currentPage = $this->request->getPage();
-        $searchLogin = $this->request->getQueryParam('search_login', '');
-        $searchEmail = $this->request->getQueryParam('search_email', '');
-        $searchLastLogin = $this->request->getQueryParam('search_last_login', '');
-        $searchCreatedAt = $this->request->getQueryParam('search_created_at', '');
+        $searchParams = [
+            'login' => $this->request->getQueryParam('search_login', ''),
+            'email' => $this->request->getQueryParam('search_email', ''),
+            'last_login' => $this->request->getQueryParam('search_last_login', ''),
+            'created_at' => $this->request->getQueryParam('search_created_at', ''),
+            'role' => $this->request->getQueryParam('search_role', ''),
+            'is_active' => $this->request->getQueryParam('search_is_active'),
+        ];
 
-        $usersData = $this->user->index($currentPage, $searchLogin, $searchEmail, $searchLastLogin, $searchCreatedAt);
+        $usersData = $this->user->index($currentPage, $searchParams);
         $users = $usersData['items'];
         $totalRecords = $usersData['total'];
         $limit = $usersData['limit'];
         $totalPages = ceil($totalRecords / $limit);
         $pageTitle = 'Список пользователей';
-
         $data = [
             'users' => $users,
             'currentPage' => $currentPage,
@@ -239,7 +242,6 @@ class UserController extends BaseController
             'totalRecords' => $totalRecords,
             'title' => $pageTitle,
         ];
-
         $this->renderView('users/index', $data);
     }
 
