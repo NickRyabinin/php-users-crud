@@ -2,7 +2,6 @@
   --font-large: 20px;
   --font-normal: 16px;
   --font-small: 12px;
-
   --color-font-main: aqua;
   --color-font-secondary: lightblue;
   --color-font-button: white;
@@ -12,6 +11,11 @@
   --color-background-button: #007bff;
   --color-hover-button: #0056b3;
   --color-border: #ccc;
+  --color-font-flash-success: #155724;
+  --color-font-flash-error: #721c24;
+  --color-background-flash-success: #d4edda;
+  --color-background-flash-error: #f8d7da;
+  --color-font-message-error: red;
 }
 
 @font-face {
@@ -218,17 +222,17 @@ img {
 }
 
 .flash-success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--color-background-flash-success);
+  color: var(--color-font-flash-success);
 }
 
 .flash-error {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--color-background-flash-error);
+  color: var(--color-font-flash-error);
 }
 
 #file-error-message {
-  color: red;
+  color: var(--color-font-message-error);
   text-align: center;
 }
 
