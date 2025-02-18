@@ -47,35 +47,9 @@ class User
     {
         $offset = ($page - 1) * 10;
         $columns = implode(' ,', $this->viewableProperties);
-        $query = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
-        $params = [];
+        $initialQuery = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
 
-        if (!empty($searchParams['login'])) {
-            $query .= " AND login LIKE :login";
-            $params[':login'] = "%{$searchParams['login']}%";
-        }
-        if (!empty($searchParams['email'])) {
-            $query .= " AND email LIKE :email";
-            $params[':email'] = "%{$searchParams['email']}%";
-        }
-        if (!empty($searchParams['last_login'])) {
-            $query .= " AND last_login >= :last_login_start AND last_login < :last_login_end";
-            $params[':last_login_start'] = $searchParams['last_login'] . ' 00:00:00';
-            $params[':last_login_end'] = $searchParams['last_login'] . ' 23:59:59';
-        }
-        if (!empty($searchParams['created_at'])) {
-            $query .= " AND created_at >= :created_at_start AND created_at < :created_at_end";
-            $params[':created_at_start'] = $searchParams['created_at'] . ' 00:00:00';
-            $params[':created_at_end'] = $searchParams['created_at'] . ' 23:59:59';
-        }
-        if (!empty($searchParams['role'])) {
-            $query .= " AND role = :role";
-            $params[':role'] = $searchParams['role'];
-        }
-        if (!empty($searchParams['is_active'])) {
-            $query .= " AND is_active = :is_active";
-            $params[':is_active'] = $searchParams['is_active'];
-        }
+        list($query, $params) = $this->buildSearchQuery($initialQuery, $searchParams);
 
         $query .= " ORDER BY id LIMIT 10 OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
@@ -201,9 +175,9 @@ class User
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
     }
 
-    private function getTotalRecords(array $searchParams): int
+    private function buildSearchQuery(string $initialQuery, array $searchParams): array
     {
-        $query = "SELECT COUNT(*) FROM {$this->entity}s WHERE 1=1";
+        $query = $initialQuery;
         $params = [];
 
         if (!empty($searchParams['login'])) {
@@ -232,6 +206,15 @@ class User
             $query .= " AND is_active = :is_active";
             $params[':is_active'] = $searchParams['is_active'];
         }
+
+        return [$query, $params];
+    }
+
+    private function getTotalRecords(array $searchParams): int
+    {
+        $initialQuery = "SELECT COUNT(*) FROM {$this->entity}s WHERE 1=1";
+
+        list($query, $params) = $this->buildSearchQuery($initialQuery, $searchParams);
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
