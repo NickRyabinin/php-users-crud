@@ -179,35 +179,42 @@ class User
     {
         $query = $initialQuery;
         $params = [];
+        $conditions = $this->getSearchQueryConditions($searchParams);
 
-        if (!empty($searchParams['login'])) {
-            $query .= " AND login LIKE :login";
-            $params[':login'] = "%{$searchParams['login']}%";
-        }
-        if (!empty($searchParams['email'])) {
-            $query .= " AND email LIKE :email";
-            $params[':email'] = "%{$searchParams['email']}%";
-        }
-        if (!empty($searchParams['last_login'])) {
-            $query .= " AND last_login >= :last_login_start AND last_login < :last_login_end";
-            $params[':last_login_start'] = $searchParams['last_login'] . ' 00:00:00';
-            $params[':last_login_end'] = $searchParams['last_login'] . ' 23:59:59';
-        }
-        if (!empty($searchParams['created_at'])) {
-            $query .= " AND created_at >= :created_at_start AND created_at < :created_at_end";
-            $params[':created_at_start'] = $searchParams['created_at'] . ' 00:00:00';
-            $params[':created_at_end'] = $searchParams['created_at'] . ' 23:59:59';
-        }
-        if (!empty($searchParams['role'])) {
-            $query .= " AND role = :role";
-            $params[':role'] = $searchParams['role'];
-        }
-        if (!empty($searchParams['is_active'])) {
-            $query .= " AND is_active = :is_active";
-            $params[':is_active'] = $searchParams['is_active'];
+        foreach ($conditions as $key => $condition) {
+            if ($condition) {
+                $query .= " AND $condition";
+                $params += match ($key) {
+                    'login' => [':login' => '%' . $searchParams['login'] . '%',],
+                    'email' => [':email' => '%' . $searchParams['email'] . '%',],
+                    'last_login' => [
+                        ':last_login_start' => $searchParams['last_login'] . ' 00:00:00',
+                        ':last_login_end' => $searchParams['last_login'] . ' 23:59:59'
+                    ],
+                    'created_at' => [
+                        ':created_at_start' => $searchParams['created_at'] . ' 00:00:00',
+                        ':created_at_end' => $searchParams['created_at'] . ' 23:59:59'
+                    ],
+                    default => [":$key" => $searchParams[$key]],
+                };
+            }
         }
 
         return [$query, $params];
+    }
+
+    private function getSearchQueryConditions(array $searchParams): array
+    {
+        return [
+            'login' => !empty($searchParams['login']) ? "login LIKE :login" : null,
+            'email' => !empty($searchParams['email']) ? "email LIKE :email" : null,
+            'last_login' => !empty($searchParams['last_login']) ?
+                "last_login >= :last_login_start AND last_login < :last_login_end" : null,
+            'created_at' => !empty($searchParams['created_at']) ?
+                "created_at >= :created_at_start AND created_at < :created_at_end" : null,
+            'role' => !empty($searchParams['role']) ? "role = :role" : null,
+            'is_active' => !empty($searchParams['is_active']) ? "is_active = :is_active" : null,
+        ];
     }
 
     private function getTotalRecords(array $searchParams): int
