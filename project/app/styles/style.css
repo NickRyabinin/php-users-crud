@@ -283,3 +283,53 @@ img {
 .search-row button:hover {
   background-color: var(--color-hover-button);
 }
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+}
+
+.pagination a {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: var(--color-background-button);
+  color: var(--color-font-button);
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.pagination a:hover {
+  background-color: var(--color-hover-button);
+}
+
+.records-per-page {
+  display: flex;
+  align-items: center;
+}
+
+.records-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.records-per-page label {
+  margin-right: 10px;
+  color: var(--color-font-secondary);
+}
+
+.records-per-page select {
+  width: 48%;
+  padding: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--color-background-main);
+  color: var(--color-font-button);
+}
