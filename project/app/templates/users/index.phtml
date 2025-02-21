@@ -114,10 +114,10 @@
         <form action="/users" method="get" class="records-form">
           <label for="records_per_page">Записей:</label>
           <select name="records_per_page" id="records_per_page" onchange="this.form.submit()">
-            <option value="5" <?= (isset($_GET['records_per_page']) && $_GET['records_per_page'] == 5) ? 'selected' : '' ?>>5</option>
-            <option value="10" <?= (isset($_GET['records_per_page']) && $_GET['records_per_page'] == 10) ? 'selected' : '' ?>>10</option>
-            <option value="20" <?= (isset($_GET['records_per_page']) && $_GET['records_per_page'] == 20) ? 'selected' : '' ?>>20</option>
-            <option value="50" <?= (isset($_GET['records_per_page']) && $_GET['records_per_page'] == 50) ? 'selected' : '' ?>>50</option>
+            <option value="5" <?= ($recordsPerPage == 5) ? 'selected' : '' ?>>5</option>
+            <option value="10" <?= ($recordsPerPage == 10) ? 'selected' : '' ?>>10</option>
+            <option value="20" <?= ($recordsPerPage == 20) ? 'selected' : '' ?>>20</option>
+            <option value="50" <?= ($recordsPerPage == 50) ? 'selected' : '' ?>>50</option>
           </select>
         </form>
       </div>
