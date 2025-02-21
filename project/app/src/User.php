@@ -45,19 +45,20 @@ class User
 
     public function index(int $page = 1, array $searchParams = []): array
     {
-        $offset = ($page - 1) * 10;
+        $recordsPerPage = $searchParams['records_per_page'];
+        $offset = ($page - 1) * $recordsPerPage;
         $columns = implode(' ,', $this->viewableProperties);
         $initialQuery = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
 
         list($query, $params) = $this->buildSearchQuery($initialQuery, $searchParams);
 
-        $query .= " ORDER BY id LIMIT 10 OFFSET {$offset}";
+        $query .= " ORDER BY id LIMIT {$recordsPerPage} OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
         $result = [
             'total' => $this->getTotalRecords($searchParams),
             'offset' => $offset,
-            'limit' => 10,
+            'limit' => $recordsPerPage,
             'items' => []
         ];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
