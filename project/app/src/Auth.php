@@ -21,7 +21,7 @@ class Auth
 
     public function logout(): void
     {
-        unset($_SESSION['auth']);
+        session_unset();
     }
 
     public function isAuth(): bool
