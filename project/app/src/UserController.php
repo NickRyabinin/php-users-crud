@@ -220,6 +220,8 @@ class UserController extends BaseController
     public function index(): void
     {
         $currentPage = $this->request->getPage();
+        $recordsPerPage = $this->getRecordsPerPage();
+
         $searchParams = [
             'login' => $this->request->getQueryParam('search_login', ''),
             'email' => $this->request->getQueryParam('search_email', ''),
@@ -227,6 +229,7 @@ class UserController extends BaseController
             'created_at' => $this->request->getQueryParam('search_created_at', ''),
             'role' => $this->request->getQueryParam('search_role', ''),
             'is_active' => $this->request->getQueryParam('search_is_active'),
+            'records_per_page' => $recordsPerPage,
         ];
 
         $usersData = $this->user->index($currentPage, $searchParams);
@@ -240,9 +243,22 @@ class UserController extends BaseController
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords,
+            'recordsPerPage' => $recordsPerPage,
             'title' => $pageTitle,
         ];
         $this->renderView('users/index', $data);
+    }
+
+    private function getRecordsPerPage(): int
+    {
+        if ($this->request->getQueryParam('records_per_page')) {
+            $recordsPerPage = (int)$this->request->getQueryParam('records_per_page');
+            $_SESSION['misc']['records_per_page'] = $recordsPerPage;
+        } else {
+            $recordsPerPage = $_SESSION['misc']['records_per_page'] ?? 5;
+        }
+
+        return $recordsPerPage;
     }
 
     public function show(): void
