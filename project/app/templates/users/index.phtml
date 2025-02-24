@@ -8,33 +8,29 @@
           name="search_login"
           placeholder="Поиск по логину"
           value="<?= htmlspecialchars($_GET['search_login'] ?? '') ?>"
-          maxlength="254"
-        >
+          maxlength="254">
         <input
           type="text"
           name="search_email"
           placeholder="Поиск по емайл"
           value="<?= htmlspecialchars($_GET['search_email'] ?? '') ?>"
-          maxlength="254"
-        >
+          maxlength="254">
       </div>
       <div class="search-row">
         <label for="search_last_login">Дата последнего посещения:</label>
         <label for="search_created_at">Дата регистрации:</label>
       </div>
       <div class="search-row">
-      <input
+        <input
           type="date"
           id="search_last_login"
           name="search_last_login"
-          value="<?= htmlspecialchars($_GET['search_last_login'] ?? '') ?>"
-        >
+          value="<?= htmlspecialchars($_GET['search_last_login'] ?? '') ?>">
         <input
           type="date"
           id="search_created_at"
           name="search_created_at"
-          value="<?= htmlspecialchars($_GET['search_created_at'] ?? '') ?>"
-        >
+          value="<?= htmlspecialchars($_GET['search_created_at'] ?? '') ?>">
       </div>
       <div class="search-row">
         <label for="search_role">Роль:</label>
@@ -62,17 +58,46 @@
       Всего записей: <?= $totalRecords ?>
       <button><a href="/users/new">Создать</a></button>
     </div>
+    <div class="footnote">* нажмите на заголовок поля таблицы для сортировки по этому полю, на логин пользователя - для просмотра его профиля</div>
     <table>
       <thead>
         <tr>
-          <th>ИД</th>
+          <th>
+            <a href="?sort_field=id&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              ИД <?= ($_GET['sort_field'] ?? '') === 'id' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
           <th>Аватар</th>
-          <th>Логин</th>
-          <th>Емайл</th>
-          <th>Последнее посещение</th>
-          <th>Статус</th>
-          <th>Зарегистрирован</th>
-          <th>Роль</th>
+          <th>
+            <a href="?sort_field=login&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Логин <?= ($_GET['sort_field'] ?? '') === 'login' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
+          <th>
+            <a href="?sort_field=email&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Емайл <?= ($_GET['sort_field'] ?? '') === 'email' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
+          <th>
+            <a href="?sort_field=last_login&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Последнее посещение <?= ($_GET['sort_field'] ?? '') === 'last_login' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
+          <th>
+            <a href="?sort_field=is_active&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Статус <?= ($_GET['sort_field'] ?? '') === 'is_active' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
+          <th>
+            <a href="?sort_field=created_at&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Зарегистрирован <?= ($_GET['sort_field'] ?? '') === 'created_at' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
+          <th>
+            <a href="?sort_field=role&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Роль <?= ($_GET['sort_field'] ?? '') === 'role' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            </a>
+          </th>
           <th>Действия</th>
         </tr>
       </thead>
