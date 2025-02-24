@@ -1,7 +1,7 @@
 :root {
   --font-large: 20px;
   --font-normal: 16px;
-  --font-small: 12px;
+  --font-small: 14px;
   --color-font-main: aqua;
   --color-font-secondary: lightblue;
   --color-font-button: white;
@@ -322,7 +322,6 @@ img {
 
 .records-per-page label {
   margin-right: 10px;
-  color: var(--color-font-secondary);
 }
 
 .records-per-page select {
@@ -332,4 +331,9 @@ img {
   border-radius: 5px;
   background-color: var(--color-background-main);
   color: var(--color-font-button);
+}
+
+.footnote {
+  color: var(--color-font-secondary);
+  font-size: var(--font-small);
 }
