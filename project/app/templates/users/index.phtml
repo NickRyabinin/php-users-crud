@@ -63,39 +63,39 @@
       <thead>
         <tr>
           <th>
-            <a href="?sort_field=id&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              ИД <?= ($_GET['sort_field'] ?? '') === 'id' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=id&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              ИД <?= ($sortField ?? '') === 'id' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>Аватар</th>
           <th>
-            <a href="?sort_field=login&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              Логин <?= ($_GET['sort_field'] ?? '') === 'login' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=login&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Логин <?= ($sortField ?? '') === 'login' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>
-            <a href="?sort_field=email&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              Емайл <?= ($_GET['sort_field'] ?? '') === 'email' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=email&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Емайл <?= ($sortField ?? '') === 'email' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>
-            <a href="?sort_field=last_login&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              Последнее посещение <?= ($_GET['sort_field'] ?? '') === 'last_login' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=last_login&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Последнее посещение <?= ($sortField ?? '') === 'last_login' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>
-            <a href="?sort_field=is_active&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              Статус <?= ($_GET['sort_field'] ?? '') === 'is_active' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=is_active&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Статус <?= ($sortField ?? '') === 'is_active' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>
-            <a href="?sort_field=created_at&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              Зарегистрирован <?= ($_GET['sort_field'] ?? '') === 'created_at' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=created_at&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Зарегистрирован <?= ($sortField ?? '') === 'created_at' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>
-            <a href="?sort_field=role&sort_order=<?= ($_GET['sort_order'] ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
-              Роль <?= ($_GET['sort_field'] ?? '') === 'role' ? ($_GET['sort_order'] === 'asc' ? '↑' : '↓') : '' ?>
+            <a href="?sort_field=role&sort_order=<?= ($sortOrder ?? 'asc') === 'asc' ? 'desc' : 'asc' ?>">
+              Роль <?= ($sortField ?? '') === 'role' ? ($sortOrder === 'asc' ? '↑' : '↓') : '' ?>
             </a>
           </th>
           <th>Действия</th>
