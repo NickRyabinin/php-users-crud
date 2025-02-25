@@ -46,13 +46,16 @@ class User
     public function index(int $page = 1, array $searchParams = []): array
     {
         $recordsPerPage = $searchParams['records_per_page'];
+        $sortField = $searchParams['sort_field'];
+        $sortOrder = $searchParams['sort_order'];
+
         $offset = ($page - 1) * $recordsPerPage;
         $columns = implode(' ,', $this->viewableProperties);
         $initialQuery = "SELECT {$columns} FROM {$this->entity}s WHERE 1=1";
 
         list($query, $params) = $this->buildSearchQuery($initialQuery, $searchParams);
 
-        $query .= " ORDER BY id LIMIT {$recordsPerPage} OFFSET {$offset}";
+        $query .= " ORDER BY {$sortField} {$sortOrder} LIMIT {$recordsPerPage} OFFSET {$offset}";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
         $result = [
