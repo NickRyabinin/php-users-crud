@@ -221,6 +221,8 @@ class UserController extends BaseController
     {
         $currentPage = $this->request->getPage();
         $recordsPerPage = $this->getRecordsPerPage();
+        $sortField = $this->getSortField();
+        $sortOrder = $this->getSortOrder();
 
         $searchParams = [
             'login' => $this->request->getQueryParam('search_login', ''),
@@ -230,6 +232,8 @@ class UserController extends BaseController
             'role' => $this->request->getQueryParam('search_role', ''),
             'is_active' => $this->request->getQueryParam('search_is_active'),
             'records_per_page' => $recordsPerPage,
+            'sort_field' => $sortField,
+            'sort_order' => $sortOrder,
         ];
 
         $usersData = $this->user->index($currentPage, $searchParams);
@@ -244,6 +248,8 @@ class UserController extends BaseController
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords,
             'recordsPerPage' => $recordsPerPage,
+            'sortField' => $sortField,
+            'sortOrder' => $sortOrder,
             'title' => $pageTitle,
         ];
         $this->renderView('users/index', $data);
@@ -259,6 +265,30 @@ class UserController extends BaseController
         }
 
         return $recordsPerPage;
+    }
+
+    private function getSortField(): string
+    {
+        if ($this->request->getQueryParam('sort_field')) {
+            $sortField = $this->request->getQueryParam('sort_field');
+            $_SESSION['misc']['sort_field'] = $sortField;
+        } else {
+            $sortField = $_SESSION['misc']['sort_field'] ?? 'id';
+        }
+
+        return $sortField;
+    }
+
+    private function getSortOrder(): string
+    {
+        if ($this->request->getQueryParam('sort_order')) {
+            $sortOrder = $this->request->getQueryParam('sort_order');
+            $_SESSION['misc']['sort_order'] = $sortOrder;
+        } else {
+            $sortOrder = $_SESSION['misc']['sort_order'] ?? 'asc';
+        }
+
+        return $sortOrder;
     }
 
     public function show(): void
