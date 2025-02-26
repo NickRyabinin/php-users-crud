@@ -134,6 +134,11 @@
         <?php if ($currentPage < $totalPages): ?>
           <a href="?page=<?= $currentPage + 1 ?>">&gt;&gt;</a>
         <?php endif; ?>
+        <form action="/users" method="get" class="page-form">
+            <input type="hidden" name="records_per_page" value="<?= htmlspecialchars($recordsPerPage) ?>">
+            <input type="number" name="page" min="1" max="<?= $totalPages ?>" value="<?= $currentPage ?>">
+            <button type="submit">Перейти</button>
+        </form>
       </div>
       <div class="records-per-page">
         <form action="/users" method="get" class="records-form">
