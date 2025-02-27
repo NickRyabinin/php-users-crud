@@ -217,26 +217,32 @@ class UserController extends BaseController
         $this->createUser($formData, '/users/new');
     }
 
-    public function index(): void
+    private function setSearchParams(): void
     {
-        $currentPage = $this->request->getPage();
         $recordsPerPage = $this->getRecordsPerPage();
         $sortField = $this->getSortField();
         $sortOrder = $this->getSortOrder();
 
-        $searchParams = [
-            'login' => $this->request->getQueryParam('search_login', ''),
-            'email' => $this->request->getQueryParam('search_email', ''),
-            'last_login' => $this->request->getQueryParam('search_last_login', ''),
-            'created_at' => $this->request->getQueryParam('search_created_at', ''),
-            'role' => $this->request->getQueryParam('search_role', ''),
-            'is_active' => $this->request->getQueryParam('search_is_active'),
+        $_SESSION['misc']['search_params'] = [
+            'login' => $this->request->getQueryParam('search_login', $_SESSION['misc']['search_params']['login'] ?? ''),
+            'email' => $this->request->getQueryParam('search_email', $_SESSION['misc']['search_params']['email'] ?? ''),
+            'last_login' => $this->request->getQueryParam('search_last_login', $_SESSION['misc']['search_params']['last_login'] ?? ''),
+            'created_at' => $this->request->getQueryParam('search_created_at', $_SESSION['misc']['search_params']['created_at'] ?? ''),
+            'role' => $this->request->getQueryParam('search_role', $_SESSION['misc']['search_params']['role'] ?? ''),
+            'is_active' => $this->request->getQueryParam('search_is_active', $_SESSION['misc']['search_params']['is_active'] ?? ''),
             'records_per_page' => $recordsPerPage,
             'sort_field' => $sortField,
             'sort_order' => $sortOrder,
         ];
+    }
 
-        $usersData = $this->user->index($currentPage, $searchParams);
+    public function index(): void
+    {
+        $currentPage = $this->request->getPage();
+
+        $this->setSearchParams();
+
+        $usersData = $this->user->index($currentPage, $_SESSION['misc']['search_params']);
         $users = $usersData['items'];
         $totalRecords = $usersData['total'];
         $limit = $usersData['limit'];
@@ -247,9 +253,9 @@ class UserController extends BaseController
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
             'totalRecords' => $totalRecords,
-            'recordsPerPage' => $recordsPerPage,
-            'sortField' => $sortField,
-            'sortOrder' => $sortOrder,
+            'recordsPerPage' => $this->getRecordsPerPage(),
+            'sortField' => $this->getSortField(),
+            'sortOrder' => $this->getSortOrder(),
             'title' => $pageTitle,
         ];
         $this->renderView('users/index', $data);
