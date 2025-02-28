@@ -9,6 +9,7 @@
   --color-background-main: #757474;
   --color-background-secondary: #111;
   --color-background-button: #007bff;
+  --color-background-button-disabled: gray;
   --color-hover-button: #0056b3;
   --color-border: #ccc;
   --color-font-flash-success: #155724;
@@ -306,7 +307,13 @@ img {
   border-radius: 5px;
 }
 
-.pagination a:hover {
+.pagination a.disabled {
+  background-color: var(--color-background-button-disabled);
+  color: var(--color-font-secondary);
+  pointer-events: none;
+}
+
+.pagination a.active:hover {
   background-color: var(--color-hover-button);
 }
 
