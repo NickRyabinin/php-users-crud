@@ -7,13 +7,13 @@
           type="text"
           name="search_login"
           placeholder="Поиск по логину"
-          value="<?= htmlspecialchars($_GET['search_login'] ?? '') ?>"
+          value="<?= htmlspecialchars($_SESSION['misc']['search_params']['login'] ?? '') ?>"
           maxlength="254">
         <input
           type="text"
           name="search_email"
           placeholder="Поиск по емайл"
-          value="<?= htmlspecialchars($_GET['search_email'] ?? '') ?>"
+          value="<?= htmlspecialchars($_SESSION['misc']['search_params']['email'] ?? '') ?>"
           maxlength="254">
       </div>
       <div class="search-row">
@@ -25,12 +25,12 @@
           type="date"
           id="search_last_login"
           name="search_last_login"
-          value="<?= htmlspecialchars($_GET['search_last_login'] ?? '') ?>">
+          value="<?= htmlspecialchars($_SESSION['misc']['search_params']['last_login'] ?? '') ?>">
         <input
           type="date"
           id="search_created_at"
           name="search_created_at"
-          value="<?= htmlspecialchars($_GET['search_created_at'] ?? '') ?>">
+          value="<?= htmlspecialchars($_SESSION['misc']['search_params']['created_at'] ?? '') ?>">
       </div>
       <div class="search-row">
         <label for="search_role">Роль:</label>
@@ -39,13 +39,37 @@
       <div class="search-row">
         <select name="search_role" id="search_role">
           <option value=""></option>
-          <option value="user" <?= (isset($_GET['search_role']) && $_GET['search_role'] === 'user') ? 'selected' : '' ?>>user</option>
-          <option value="admin" <?= (isset($_GET['search_role']) && $_GET['search_role'] === 'admin') ? 'selected' : '' ?>>admin</option>
+          <option
+            value="user"
+            <?= (isset($_SESSION['misc']['search_params']['role'])
+              && $_SESSION['misc']['search_params']['role'] === 'user') ? 'selected' : ''
+            ?>>
+            user
+          </option>
+          <option
+            value="admin"
+            <?= (isset($_SESSION['misc']['search_params']['role'])
+              && $_SESSION['misc']['search_params']['role'] === 'admin') ? 'selected' : ''
+            ?>>
+            admin
+          </option>
         </select>
         <select name="search_is_active" id="search_is_active">
           <option value=""></option>
-          <option value="true" <?= (isset($_GET['search_is_active']) && $_GET['search_is_active'] === 'true') ? 'selected' : '' ?>>активен</option>
-          <option value="false" <?= (isset($_GET['search_is_active']) && $_GET['search_is_active'] === 'false') ? 'selected' : '' ?>>неактивен</option>
+          <option
+            value="true"
+            <?= (isset($_SESSION['misc']['search_params']['is_active'])
+              && $_SESSION['misc']['search_params']['is_active'] === 'true') ? 'selected' : ''
+            ?>>
+            активен
+          </option>
+          <option
+            value="false"
+            <?= (isset($_SESSION['misc']['search_params']['is_active'])
+              && $_SESSION['misc']['search_params']['is_active'] === 'false') ? 'selected' : ''
+            ?>>
+            неактивен
+          </option>
         </select>
       </div>
       <div class="search-row button-row">
@@ -127,17 +151,13 @@
     <!-- Пагинация -->
     <div class="pagination-container">
       <div class="pagination">
-        <?php if ($currentPage > 1): ?>
-          <a href="?page=<?= $currentPage - 1 ?>">&lt;&lt;</a>
-        <?php endif; ?>
+        <a href="?page=<?= $currentPage - 1 ?>" class="<?= $currentPage > 1 ? 'active' : 'disabled' ?>">&lt;&lt;</a>
         <span>Страница <?= $currentPage ?> из <?= $totalPages ?></span>
-        <?php if ($currentPage < $totalPages): ?>
-          <a href="?page=<?= $currentPage + 1 ?>">&gt;&gt;</a>
-        <?php endif; ?>
+        <a href="?page=<?= $currentPage + 1 ?>" class="<?= $currentPage < $totalPages ? 'active' : 'disabled' ?>">&gt;&gt;</a>
         <form action="/users" method="get" class="page-form">
-            <input type="hidden" name="records_per_page" value="<?= htmlspecialchars($recordsPerPage) ?>">
-            <input type="number" name="page" min="1" max="<?= $totalPages ?>" value="<?= $currentPage ?>">
-            <button type="submit">Перейти</button>
+          <input type="hidden" name="records_per_page" value="<?= htmlspecialchars($recordsPerPage) ?>">
+          <input type="number" name="page" min="1" max="<?= $totalPages ?>" value="<?= $currentPage ?>">
+          <button type="submit">Перейти</button>
         </form>
       </div>
       <div class="records-per-page">
