@@ -84,6 +84,8 @@ $userController = new UserController(
 );
 $pageController = new PageController(
     [
+        'request' => $request,
+        'response' => $response,
         'view' => $view,
         'flash' => $flash,
         'auth' => $auth,
