@@ -10,8 +10,8 @@ namespace src;
 
 class UserController extends BaseController
 {
-    private Request $request;
-    private Response $response;
+    protected Request $request;
+    protected Response $response;
     private User $user;
     protected Captcha $captcha;
     protected Flash $flash;
@@ -41,15 +41,6 @@ class UserController extends BaseController
         $this->renderView('auth/register', ['title' => $pageTitle]);
     }
 
-    private function isEnteredCaptchaValid(): bool
-    {
-        $captchaText = $this->captcha->getCaptchaText();
-        $this->captcha->clearCaptchaText();
-        $enteredCaptchaText = $this->request->getFormData('captcha_input');
-
-        return $captchaText === $enteredCaptchaText;
-    }
-
     private function getEnteredFormData(): array
     {
         return [
@@ -74,30 +65,6 @@ class UserController extends BaseController
             'is_active' => '',
             'role' => '',
         ];
-    }
-
-    private function handleValidationErrors(array $errors, string $redirectUrl, array $data): void
-    {
-        $flattenedErrors = array_reduce($errors, 'array_merge', []);
-        foreach ($flattenedErrors as $error) {
-            $this->flash->set('error', $error);
-        }
-        $this->flash->set('status_code', '422');
-        $this->response->redirect($redirectUrl, $data);
-    }
-
-    private function handleErrors(string $message, string $statusCode, string $redirectUrl, array $data = []): void
-    {
-        $this->flash->set('error', $message);
-        $this->flash->set('status_code', $statusCode);
-        $this->response->redirect($redirectUrl, $data);
-    }
-
-    private function handleNoErrors(string $message, string $statusCode, string $redirectUrl): void
-    {
-        $this->flash->set('success', $message);
-        $this->flash->set('status_code', $statusCode);
-        $this->response->redirect($redirectUrl);
     }
 
     private function getAvatarPath(array $formData, string $redirectUrl): string
@@ -226,10 +193,13 @@ class UserController extends BaseController
         $_SESSION['misc']['search_params'] = [
             'login' => $this->request->getQueryParam('search_login', $_SESSION['misc']['search_params']['login'] ?? ''),
             'email' => $this->request->getQueryParam('search_email', $_SESSION['misc']['search_params']['email'] ?? ''),
-            'last_login' => $this->request->getQueryParam('search_last_login', $_SESSION['misc']['search_params']['last_login'] ?? ''),
-            'created_at' => $this->request->getQueryParam('search_created_at', $_SESSION['misc']['search_params']['created_at'] ?? ''),
+            'last_login' => $this->request
+                ->getQueryParam('search_last_login', $_SESSION['misc']['search_params']['last_login'] ?? ''),
+            'created_at' => $this->request
+                ->getQueryParam('search_created_at', $_SESSION['misc']['search_params']['created_at'] ?? ''),
             'role' => $this->request->getQueryParam('search_role', $_SESSION['misc']['search_params']['role'] ?? ''),
-            'is_active' => $this->request->getQueryParam('search_is_active', $_SESSION['misc']['search_params']['is_active'] ?? ''),
+            'is_active' => $this->request
+                ->getQueryParam('search_is_active', $_SESSION['misc']['search_params']['is_active'] ?? ''),
             'records_per_page' => $recordsPerPage,
             'sort_field' => $sortField,
             'sort_order' => $sortOrder,
@@ -259,42 +229,6 @@ class UserController extends BaseController
             'title' => $pageTitle,
         ];
         $this->renderView('users/index', $data);
-    }
-
-    private function getRecordsPerPage(): int
-    {
-        if ($this->request->getQueryParam('records_per_page')) {
-            $recordsPerPage = (int)$this->request->getQueryParam('records_per_page');
-            $_SESSION['misc']['records_per_page'] = $recordsPerPage;
-        } else {
-            $recordsPerPage = $_SESSION['misc']['records_per_page'] ?? 5;
-        }
-
-        return $recordsPerPage;
-    }
-
-    private function getSortField(): string
-    {
-        if ($this->request->getQueryParam('sort_field')) {
-            $sortField = $this->request->getQueryParam('sort_field');
-            $_SESSION['misc']['sort_field'] = $sortField;
-        } else {
-            $sortField = $_SESSION['misc']['sort_field'] ?? 'id';
-        }
-
-        return $sortField;
-    }
-
-    private function getSortOrder(): string
-    {
-        if ($this->request->getQueryParam('sort_order')) {
-            $sortOrder = $this->request->getQueryParam('sort_order');
-            $_SESSION['misc']['sort_order'] = $sortOrder;
-        } else {
-            $sortOrder = $_SESSION['misc']['sort_order'] ?? 'asc';
-        }
-
-        return $sortOrder;
     }
 
     public function show(): void
