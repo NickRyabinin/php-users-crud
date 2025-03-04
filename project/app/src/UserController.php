@@ -12,10 +12,10 @@ class UserController extends BaseController
 {
     protected Request $request;
     protected Response $response;
-    private User $user;
+    protected User $user;
     protected Captcha $captcha;
     protected Flash $flash;
-    private Validator $validator;
+    protected Validator $validator;
     protected Auth $auth;
     private FileHandler $fileHandler;
     private Logger $logger;
@@ -35,13 +35,7 @@ class UserController extends BaseController
         $this->logger = $params['logger'];
     }
 
-    public function showRegistrationForm(): void
-    {
-        $pageTitle = 'Регистрация пользователя';
-        $this->renderView('auth/register', ['title' => $pageTitle]);
-    }
-
-    private function getEnteredFormData(): array
+    protected function getEnteredFormData(): array
     {
         return [
             'login' => $this->request->getFormData('username'),
@@ -54,7 +48,7 @@ class UserController extends BaseController
         ];
     }
 
-    private function getValidationRules(): array
+    protected function getValidationRules(): array
     {
         return [
             'login' => 'required|string|min:3|max:20|unique:login',
@@ -82,7 +76,7 @@ class UserController extends BaseController
         return $profilePictureRelativeUrl;
     }
 
-    private function createUser(array $data, string $redirectUrl): void
+    protected function createUser(array $data, string $redirectUrl): void
     {
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         if (
@@ -101,69 +95,6 @@ class UserController extends BaseController
         }
         $this->logger->log('User store() error');
         $this->handleErrors('Что-то пошло не так. Попробуйте снова.', '422', $redirectUrl, $data);
-    }
-
-    public function register(): void
-    {
-        $formData = $this->getEnteredFormData();
-        $formData['is_active'] = 'true'; // любой пользователь по умолчанию при регистрации
-
-        $errors = $this->validator->validate($this->getValidationRules(), $formData);
-        if (!empty($errors)) {
-            $this->handleValidationErrors($errors, '/users/register', $formData);
-        }
-
-        if (!$this->isEnteredCaptchaValid()) {
-            $this->handleErrors('Неправильный текст капчи', '422', '/users/register', $formData);
-        }
-
-        $this->createUser($formData, '/users/register');
-    }
-
-    public function showLoginForm(): void
-    {
-        $pageTitle = 'Вход в приложение';
-        $this->renderView('auth/login', ['title' => $pageTitle]);
-    }
-
-    public function login(): void
-    {
-        $formData = $this->getEnteredFormData();
-
-        if ($this->auth->hasTooManyLoginAttempts($formData['email'])) {
-            $this->handleErrors(
-                'Аккаунт заблокирован на несколько минут - слишком много неудачных попыток входа.',
-                '401',
-                '/users/login'
-            );
-        }
-
-        if (!$this->isEnteredCaptchaValid()) {
-            $this->handleErrors('Неправильный текст капчи', '422', '/users/login');
-        }
-
-        $userId = $this->user->getValue('user', 'id', 'email', $formData['email']);
-        $user = $this->user->show($userId);
-        $userHashedPassword = $user['hashed_password'] ?? '';
-
-        if (!$userId || !password_verify($formData['password'], $userHashedPassword)) {
-            $this->auth->recordLoginAttempt($formData['email']);
-            $this->handleErrors('Неправильный Email или пароль!', '401', '/users/login');
-        }
-
-        if (!$user['is_active']) {
-            $this->handleErrors('Аккаунт неактивен (блокирован администратором).', '401', '/users/login');
-        }
-
-        $this->auth->login($user);
-        $this->user->updateLastLogin($formData['email']);
-        $this->handleNoErrors('Аутентификация прошла успешно!', '200', "/users/{$userId}");
-    }
-
-    public function logout(): void
-    {
-        $this->auth->logout();
-        $this->response->redirect("/");
     }
 
     public function create(): void
