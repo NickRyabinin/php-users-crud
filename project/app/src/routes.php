@@ -1,14 +1,15 @@
 <?php
 
 use src\UserController;
+use src\AuthController;
 use src\PageController;
 
 return [
     'GET' => [
-        '/users/register' => [UserController::class, 'showRegistrationForm', []],
+        '/users/register' => [AuthController::class, 'showRegistrationForm', []],
         '/users/captcha' => [UserController::class, 'showCaptcha', []],
-        '/users/login' => [UserController::class, 'showLoginForm', []],
-        '/users/logout' => [UserController::class, 'logout', ['auth' => true]],
+        '/users/login' => [AuthController::class, 'showLoginForm', []],
+        '/users/logout' => [AuthController::class, 'logout', ['auth' => true]],
         '/users/new' => [UserController::class, 'create', ['admin' => true]],
         '/users/{id}/edit' => [UserController::class, 'edit', ['auth' => true]],
         '/users/{id}' => [UserController::class, 'show', ['auth' => true]],
@@ -16,8 +17,8 @@ return [
         '/' => [PageController::class, 'read', []]
     ],
     'POST' => [
-        '/users/register' => [UserController::class, 'register', []],
-        '/users/login' => [UserController::class, 'login', []],
+        '/users/register' => [AuthController::class, 'register', []],
+        '/users/login' => [AuthController::class, 'login', []],
         '/users' => [UserController::class, 'store', ['admin' => true]],
     ],
     'PUT' => [
