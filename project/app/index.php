@@ -28,6 +28,7 @@ use src\Flash;
 use src\PageController;
 use src\Router;
 use src\UserController;
+use src\AuthController;
 use src\User;
 use src\View;
 use src\Request;
@@ -82,6 +83,20 @@ $userController = new UserController(
         'logger' => $logger,
     ]
 );
+$authController = new AuthController(
+    [
+        'request' => $request,
+        'response' => $response,
+        'user' => $user,
+        'view' => $view,
+        'captcha' => $captcha,
+        'flash' => $flash,
+        'validator' => $validator,
+        'auth' => $auth,
+        'fileHandler' => $fileHandler,
+        'logger' => $logger,
+    ]
+);
 $pageController = new PageController(
     [
         'request' => $request,
@@ -94,6 +109,7 @@ $pageController = new PageController(
 
 $controllers = [
     UserController::class => $userController,
+    AuthController::class => $authController,
     PageController::class => $pageController,
 ];
 
