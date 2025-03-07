@@ -14,11 +14,13 @@ class Router
     private array $routes = [];
     private Request $request;
     private AuthMiddleware $authMiddleware;
+    private Logger $logger;
 
-    public function __construct(Request $request, AuthMiddleware $authMiddleware)
+    public function __construct(Request $request, AuthMiddleware $authMiddleware, Logger $logger)
     {
         $this->request = $request;
         $this->authMiddleware = $authMiddleware;
+        $this->logger = $logger;
     }
 
     public function addRoute(string $method, string $route, array $routeData): void
@@ -49,7 +51,7 @@ class Router
         if (isset($this->routes[$requestMethod])) {
             $this->processRoutes($requestMethod, $requestPath);
         } else {
-            $this->handleRouteNotFound();
+            $this->handleRouteNotFound("{$requestMethod} {$requestPath}");
         }
     }
 
@@ -61,7 +63,7 @@ class Router
             }
         }
 
-        $this->handleRouteNotFound();
+        $this->handleRouteNotFound("{$requestMethod} {$requestPath}");
     }
 
     private function getRequestMethod(): string
@@ -93,9 +95,11 @@ class Router
         }
     }
 
-    private function handleRouteNotFound(): void
+    private function handleRouteNotFound(string $route): void
     {
         http_response_code(404);
-        echo json_encode(['message' => 'Route not found']);
+        echo json_encode(['message' => "Route not found: {$route}"]);
+        $this->logger->log("Router handleRouteNotFound() route not found: {$route}");
+        exit;
     }
 }
