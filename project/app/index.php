@@ -64,7 +64,7 @@ $request = new Request();
 $response = new Response($flash);
 $auth = new Auth(MAX_LOGIN_ATTEMPTS, LOGIN_BLOCK_TIME);
 $authMiddleware = new AuthMiddleware($auth, $response);
-$router = new Router($request, $authMiddleware);
+$router = new Router($request, $authMiddleware, $logger);
 $view = new View(TEMPLATES_PATH);
 $user = new User($pdo, $logger);
 $fileHandler = new FileHandler(SERVER_UPLOAD_DIR);
@@ -117,9 +117,9 @@ $controllers = [
 if (file_exists(ROUTES_PATH)) {
     $routes = require ROUTES_PATH;
 } else {
-    // надо заменить этот код на переброс к странице-заглушке
     http_response_code(500);
-    echo json_encode(['message' => 'Файл маршрутов не найден.']);
+    echo json_encode(['message' => 'Routes file not found!']);
+    $logger->log('Entry point Routes file not found!');
     exit;
 }
 
