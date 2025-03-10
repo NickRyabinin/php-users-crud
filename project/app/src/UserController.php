@@ -119,6 +119,8 @@ class UserController extends BaseController
     public function show(): void
     {
         $user = $this->getUserData();
+        $this->checkUserData($user);
+
         $pageTitle = 'Профиль пользователя';
 
         $data = [
@@ -132,6 +134,8 @@ class UserController extends BaseController
     public function edit(): void
     {
         $user = $this->getUserData();
+        $this->checkUserData($user);
+
         $pageTitle = 'Изменение пользователя';
 
         $data = [
@@ -218,6 +222,8 @@ class UserController extends BaseController
     public function update(): void
     {
         $currentUser = $this->getUserData();
+        $this->checkUserData($currentUser);
+
         $formData = $this->getEnteredFormData();
         $id = $this->request->getResourceId();
 
@@ -264,5 +270,17 @@ class UserController extends BaseController
         }
 
         return $this->user->show($id);
+    }
+
+    /**
+     * @param array<string, mixed> $user
+     */
+
+    private function checkUserData(array $user): void
+    {
+        if ($user === []) {
+            $this->handleErrors('Запрошенный ресурс не существует.', '404', '/');
+        }
+        return;
     }
 }
