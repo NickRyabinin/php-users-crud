@@ -9,12 +9,18 @@ namespace src;
 
 class View
 {
-    private $templatesPath;
+    private string $templatesPath;
+    private Logger $logger;
 
-    public function __construct($templatesPath)
+    public function __construct(string $templatesPath, Logger $logger)
     {
         $this->templatesPath = $templatesPath;
+        $this->logger = $logger;
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
 
     public function render(string $templateName, array $data = [], int $httpStatusCode = 200): void
     {
@@ -33,8 +39,9 @@ class View
             $content = ob_get_clean();
         } else {
             http_response_code(500);
-            echo "Не найден шаблон для отображения";
-            return;
+            echo 'View template not found';
+            $this->logger->log("View render() template not found: {$contentTemplate}");
+            exit;
         }
 
         include $this->templatesPath . 'layout.phtml';
