@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Трейт UserRoutine содержит некоторые вспомогательные методы, просто
+ * вынесенные из класса UserController для улучшения его логической структуры
+ * и уменьшения количества строк кода
+ */
+
 namespace src;
 
 trait UserRoutine
@@ -58,5 +64,32 @@ trait UserRoutine
             'sort_field' => $sortField,
             'sort_order' => $sortOrder,
         ];
+    }
+
+    /**
+     * @return array<string, mixed> $user
+     */
+
+    private function getUserData(): array
+    {
+        $id = $this->request->getResourceId();
+
+        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
+            $this->handleErrors('Действие доступно только пользователям с правами администратора', '403', '/');
+        }
+
+        return $this->user->show($id);
+    }
+
+    /**
+     * @param array<string, mixed> $user
+     */
+
+    private function checkUserData(array $user): void
+    {
+        if ($user === []) {
+            $this->handleErrors('Запрошенный ресурс не существует.', '404', '/');
+        }
+        return;
     }
 }

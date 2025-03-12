@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Класс FileHandler предоставляет приложению вспомогательные методы-обёртки
+ * для взаимодействия с файлами, загруженными пользователями через html-форму
+ */
+
 namespace src;
 
 class FileHandler
@@ -37,6 +42,10 @@ class FileHandler
 
         return $uniqueFileName;
     }
+
+    /**
+     * @param array<string, mixed> $file
+     */
 
     private function getUniqueFileName(array $file): string
     {

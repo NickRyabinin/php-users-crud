@@ -16,6 +16,10 @@ class Response
         $this->flash = $flash;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
+
     public function redirect(string $route, array $data = []): void
     {
         foreach ($data as $key => $value) {

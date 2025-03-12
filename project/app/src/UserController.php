@@ -260,27 +260,4 @@ class UserController extends BaseController
         }
         $this->handleNoErrors('Пользователь успешно удалён!', '200', '/users');
     }
-
-    private function getUserData(): array
-    {
-        $id = $this->request->getResourceId();
-
-        if (!$this->auth->isAdmin() && $id !== $this->auth->getAuthId()) {
-            $this->handleErrors('Действие доступно только пользователям с правами администратора', '403', '/');
-        }
-
-        return $this->user->show($id);
-    }
-
-    /**
-     * @param array<string, mixed> $user
-     */
-
-    private function checkUserData(array $user): void
-    {
-        if ($user === []) {
-            $this->handleErrors('Запрошенный ресурс не существует.', '404', '/');
-        }
-        return;
-    }
 }

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Класс Auth - предоставляет вспомогательные методы для контроля аутентификации
+ * и авторизации пользователя, путём взаимодействия с массивом $_SESSION
+ */
+
 namespace src;
 
 class Auth
@@ -12,6 +17,10 @@ class Auth
         $this->attemptsLimit = $attemptsLimit;
         $this->blockTime = $blockTime;
     }
+
+     /**
+     * @param array<string, mixed> $user
+     */
 
     public function login(array $user): void
     {
