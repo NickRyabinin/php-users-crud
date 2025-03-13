@@ -8,7 +8,14 @@ namespace src;
 
 class Request
 {
+    /**
+     * @var array<string, mixed> $data
+     */
     private array $data;
+
+    /**
+     * @var array<string, mixed> $files
+     */
     private array $files;
 
     public function __construct()
@@ -22,6 +29,10 @@ class Request
         return isset($this->data[$key]) ? htmlspecialchars($this->data[$key], ENT_QUOTES, 'UTF-8') : null;
     }
 
+    /**
+     * @return array<string, mixed> | false
+     */
+
     public function getFile(string $key): array | false
     {
         return $this->files[$key] ?? false;
@@ -32,12 +43,12 @@ class Request
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
-    public function getParsedUrl(): array
+    public function getParsedUrl(): mixed
     {
         return parse_url($_SERVER['REQUEST_URI']);
     }
 
-    public function getResourceId(): ?int
+    public function getResourceId(): int
     {
         $parsedUrl = $this->getParsedUrl();
         $path = $parsedUrl['path'] ?? '';
@@ -50,7 +61,7 @@ class Request
             return (int) $id;
         }
 
-        return null;
+        return 0;
     }
 
     public function getPage(): int

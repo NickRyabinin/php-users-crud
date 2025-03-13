@@ -2,7 +2,7 @@
 
 /**
  * Абстрактный класс BaseController - родительский класс для контроллеров сущностей,
- * содержит общие методы для них методы.
+ * содержит общие для них методы.
  */
 
 namespace src;
@@ -16,6 +16,10 @@ abstract class BaseController
     protected Request $request;
     protected Response $response;
 
+    /**
+     * @param array<string, mixed> $params
+     */
+
     public function __construct(array $params)
     {
         $this->request = $params['request'];
@@ -25,10 +29,14 @@ abstract class BaseController
         $this->auth = $params['auth'];
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
+
     protected function renderView(string $template, array $data): void
     {
         $statusCode = $this->flash->get('status_code');
-        $httpStatusCode = $statusCode === [] ? 200 : $statusCode[0];
+        $httpStatusCode = $statusCode === [] ? 200 : (int) $statusCode[0];
 
         $this->view->render($template, array_merge($data, [
             'flash' => $this->flash->get(),
@@ -52,6 +60,11 @@ abstract class BaseController
         return $captchaText === $enteredCaptchaText;
     }
 
+    /**
+     * @param array<string, mixed> $errors
+     * @param array<string, mixed> $data
+     */
+
     protected function handleValidationErrors(array $errors, string $redirectUrl, array $data): void
     {
         $flattenedErrors = array_reduce($errors, 'array_merge', []);
@@ -61,6 +74,10 @@ abstract class BaseController
         $this->flash->set('status_code', '422');
         $this->response->redirect($redirectUrl, $data);
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
 
     protected function handleErrors(string $message, string $statusCode, string $redirectUrl, array $data = []): void
     {
