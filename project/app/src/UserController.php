@@ -37,6 +37,10 @@ class UserController extends BaseController
         $this->logger = $params['logger'];
     }
 
+    /**
+     * @param array<string, mixed> $formData
+     */
+
     private function getAvatarPath(array $formData, string $redirectUrl): string
     {
         $profilePictureRelativeUrl = '';
@@ -51,6 +55,10 @@ class UserController extends BaseController
         }
         return $profilePictureRelativeUrl;
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
 
     protected function createUser(array $data, string $redirectUrl): void
     {
@@ -146,6 +154,12 @@ class UserController extends BaseController
         $this->renderView('users/edit', $data);
     }
 
+    /**
+     * @param array<string, mixed> $formData
+     * @param array<string, mixed> $currentUser
+     * @return array<array<string, mixed>>
+     */
+
     private function getUpdateValidationData(array $formData, array $currentUser): array
     {
         $validationRules = [];
@@ -184,6 +198,12 @@ class UserController extends BaseController
             }
         }
     }
+
+    /**
+     * @param array<string, mixed> $formData
+     * @param array<string, mixed> $currentUser
+     * @param array<string, mixed> $dataToValidate
+     */
 
     private function updateUser(array $currentUser, array $formData, array $dataToValidate): void
     {
@@ -241,7 +261,7 @@ class UserController extends BaseController
     public function delete(): void
     {
         $id = $this->request->getResourceId();
-        $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', $id);
+        $currentProfilePicture = $this->user->getValue('user', 'profile_picture', 'id', "{$id}");
         $deleteConfirmation = $this->request->getFormData('delete_confirmation');
 
         if (!($id && $deleteConfirmation)) {
