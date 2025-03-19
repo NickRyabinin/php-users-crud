@@ -22,6 +22,7 @@ class Validator
      * @param array<string, mixed> $data Массив данных для валидации
      * @return array<array<string>>
      */
+
     public function validate(array $validationRules, array $data): array
     {
         $errors = [];
@@ -45,6 +46,7 @@ class Validator
      * @param array<string, mixed> $data Массив данных для валидации
      * @return array<string>
      */
+
     private function validateField(string $field, mixed $value, string $rules, array $data): array
     {
         $errors = [];
@@ -59,6 +61,11 @@ class Validator
 
         return $errors;
     }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string>
+     */
 
     private function applyRule(string $field, mixed $value, string $rule, array $data): array
     {
@@ -83,15 +90,27 @@ class Validator
         return [];
     }
 
+    /**
+     * @return array<string>
+     */
+
     private function validateRequired(string $field, mixed $value): array
     {
         return empty($value) ? ["Поле {$field} обязательно к заполнению."] : [];
     }
 
+    /**
+     * @return array<string>
+     */
+
     private function validateString(string $field, mixed $value): array
     {
         return !is_string($value) ? ["Поле {$field} должно быть строкой."] : [];
     }
+
+    /**
+     * @return array<string>
+     */
 
     private function validateEmail(string $field, mixed $value): array
     {
@@ -99,6 +118,10 @@ class Validator
             ? ["Неправильный формат введённого email в поле {$field}."]
             : [];
     }
+
+    /**
+     * @return array<string>
+     */
 
     private function validateUnique(string $field, mixed $value, string $ruleParam): array
     {
@@ -109,6 +132,10 @@ class Validator
         return [];
     }
 
+    /**
+     * @return array<string>
+     */
+
     private function validateMin(string $field, mixed $value, string $ruleParam): array
     {
         return ($ruleParam && mb_strlen($value) < (int)$ruleParam)
@@ -116,12 +143,20 @@ class Validator
             : [];
     }
 
+    /**
+     * @return array<string>
+     */
+
     private function validateMax(string $field, mixed $value, string $ruleParam): array
     {
         return ($ruleParam && mb_strlen($value) > (int)$ruleParam)
             ? ["Поле {$field} должно содержать максимум {$ruleParam} символов."]
             : [];
     }
+
+    /**
+     * @return array<string>
+     */
 
     private function validateFile(string $field, mixed $value, string $ruleParam): array
     {
@@ -146,6 +181,10 @@ class Validator
         return $errors;
     }
 
+    /**
+     * @return array<string>
+     */
+
     private function validateImage(string $field, mixed $value): array
     {
         if (!$this->fileHandler->isFile($value)) {
@@ -156,6 +195,11 @@ class Validator
             ? ["Файл {$field} должен быть изображением в формате jpg, jpeg или png."]
             : [];
     }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string>
+     */
 
     private function validateCurrentPassword(mixed $value, array $data, string $ruleParam): array
     {
@@ -170,6 +214,11 @@ class Validator
         }
         return [];
     }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string>
+     */
 
     private function validateConfirmed(string $field, mixed $value, array $data, string $ruleParam): array
     {
