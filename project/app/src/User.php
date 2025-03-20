@@ -9,7 +9,13 @@ namespace src;
 
 class User
 {
+    private \PDO $pdo;
+    private Logger $logger;
     private string $entity = 'user';
+
+    /**
+     * @var array<string> $fillableProperties
+     */
     private array $fillableProperties = [
         'login',
         'email',
@@ -18,6 +24,10 @@ class User
         'is_active',
         'role'
     ];
+
+    /**
+     * @var array<string> $viewableProperties
+     */
     private array $viewableProperties = [
         'id',
         'login',
@@ -29,8 +39,6 @@ class User
         'created_at',
         'role'
     ];
-    private \PDO $pdo;
-    private Logger $logger;
 
     public function __construct(\PDO $pdo, Logger $logger)
     {
@@ -42,6 +50,11 @@ class User
     {
         return $this->entity;
     }
+
+    /**
+     * @param array<string, mixed> $searchParams
+     * @return array<string, mixed>
+     */
 
     public function index(int $page = 1, array $searchParams = []): array
     {
@@ -70,6 +83,10 @@ class User
         return $result;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+
     public function show(int $id): array
     {
         if (!$this->checkId($id)) {
@@ -88,6 +105,10 @@ class User
             return [];
         }
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
 
     public function store(array $data): bool
     {
@@ -113,6 +134,10 @@ class User
             return false;
         }
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
 
     public function update(int $id, array $data): bool
     {
@@ -179,6 +204,11 @@ class User
         return $stmt->fetch(\PDO::FETCH_ASSOC)['result'] ?? false;
     }
 
+    /**
+     * @param array<string, mixed> $searchParams
+     * @return array<mixed>
+     */
+
     private function buildSearchQuery(string $initialQuery, array $searchParams): array
     {
         $query = $initialQuery;
@@ -207,6 +237,11 @@ class User
         return [$query, $params];
     }
 
+    /**
+     * @param array<string, mixed> $searchParams
+     * @return array<string, mixed>
+     */
+
     private function getSearchQueryConditions(array $searchParams): array
     {
         return [
@@ -221,6 +256,10 @@ class User
         ];
     }
 
+    /**
+     * @param array<string, mixed> $searchParams
+     */
+
     private function getTotalRecords(array $searchParams): int
     {
         $initialQuery = "SELECT COUNT(*) FROM {$this->entity}s WHERE 1=1";
@@ -229,7 +268,7 @@ class User
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
-        return $stmt->fetchColumn();
+        return (int)$stmt->fetchColumn();
     }
 
     public function updateLastLogin(string $email): bool
