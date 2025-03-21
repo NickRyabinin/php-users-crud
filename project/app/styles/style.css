@@ -1,7 +1,7 @@
 :root {
-  --font-large: 20px;
-  --font-normal: 16px;
-  --font-small: 14px;
+  --font-large: 18px;
+  --font-normal: 14px;
+  --font-small: 12px;
   --color-font-main: aqua;
   --color-font-secondary: lightblue;
   --color-font-button: white;
@@ -22,7 +22,7 @@
 @font-face {
   font-weight: 400;
   font-family: "Open Sans";
-  src: url("./../assets/fonts/OpenSans-Regular.ttf");
+  src: url("../assets/fonts/OpenSans-Regular.ttf");
 }
 
 body {
@@ -33,6 +33,8 @@ body {
   margin: 0;
   background-color: var(--color-background-main);
   color: var(--color-font-main);
+  font-family: "Open Sans", sans-serif;
+  font-size: var(--font-normal);
 }
 
 nav {
